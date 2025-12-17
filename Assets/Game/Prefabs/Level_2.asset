@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90e06c837e5705749b73c2f2c87b8a35, type: 3}
+  m_Name: Level_2
+  m_EditorClassIdentifier: 
+  level: 2
+  capacity: 8
+  type: 0
+  tubes:
+  - segmentsBottomToTop:
+    - colorId: 2
+      Amount: 2
+    - colorId: 0
+      Amount: 2
+    - colorId: 5
+      Amount: 2
+    - colorId: 3
+      Amount: 2
+  - segmentsBottomToTop:
+    - colorId: 2
+      Amount: 2
+    - colorId: 0
+      Amount: 2
+    - colorId: 5
+      Amount: 2
+    - colorId: 3
+      Amount: 2
+  - segmentsBottomToTop:
+    - colorId: 2
+      Amount: 2
+    - colorId: 0
+      Amount: 2
+    - colorId: 5
+      Amount: 2
+    - colorId: 3
+      Amount: 2
+  - segmentsBottomToTop:
+    - colorId: 2
+      Amount: 2
+    - colorId: 3
+      Amount: 2
+    - colorId: 5
+      Amount: 2
+    - colorId: 0
+      Amount: 2
+  - segmentsBottomToTop: []
+  - segmentsBottomToTop: []
+  - segmentsBottomToTop: []
