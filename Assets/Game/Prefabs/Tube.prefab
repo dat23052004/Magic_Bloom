@@ -147,13 +147,13 @@ SpriteMask:
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 50601b68bdb8b0443a713f87e2fe3b63, type: 3}
   m_MaskAlphaCutoff: 0.2
-  m_FrontSortingLayerID: 0
-  m_BackSortingLayerID: 0
-  m_FrontSortingLayer: 0
-  m_BackSortingLayer: 0
-  m_FrontSortingOrder: 0
+  m_FrontSortingLayerID: 143245065
+  m_BackSortingLayerID: 143245065
+  m_FrontSortingLayer: 1
+  m_BackSortingLayer: 1
+  m_FrontSortingOrder: 10
   m_BackSortingOrder: 0
-  m_IsCustomRangeActive: 0
+  m_IsCustomRangeActive: 1
   m_SpriteSortPoint: 0
   m_MaskSource: 0
 --- !u!1 &4903941310697200382
@@ -479,7 +479,7 @@ GameObject:
   - component: {fileID: 527008872366781647}
   - component: {fileID: 9060907176878244509}
   m_Layer: 0
-  m_Name: Square
+  m_Name: WaterRect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -495,7 +495,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.0111, y: -1.1136, z: 0}
-  m_LocalScale: {x: 2.0403032, y: 5.863643, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8976673906241090200}
@@ -541,15 +541,15 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 143245065
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_DrawMode: 1
+  m_Size: {x: 2.040303, y: 5.863643}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -566,6 +566,7 @@ GameObject:
   - component: {fileID: 3680145800228972167}
   - component: {fileID: 3061481788819317286}
   - component: {fileID: 3078156941143678405}
+  - component: {fileID: 1112422384311696354}
   m_Layer: 0
   m_Name: Tube
   m_TagString: Untagged
@@ -613,6 +614,7 @@ MonoBehaviour:
   segmentPrefab: {fileID: 4245304009244628178, guid: 5f3c33f46c228b54eb6e0832ba0131b3, type: 3}
   waterRect: {fileID: 9060907176878244509}
   bottomBoost: 0.249
+  sortingGroup: {fileID: 1112422384311696354}
 --- !u!114 &3078156941143678405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -625,6 +627,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5787d1dff04260645b3ef0d5e15aa5cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!210 &1112422384311696354
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7013561441748943746}
+  m_Enabled: 1
+  m_SortingLayerID: 143245065
+  m_SortingLayer: 1
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
 --- !u!1 &7128004657012078823
 GameObject:
   m_ObjectHideFlags: 0

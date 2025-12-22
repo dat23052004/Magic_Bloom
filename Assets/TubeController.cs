@@ -31,8 +31,6 @@ public class TubeController : Singleton<TubeController>
     [SerializeField] private float pourMaxTime = 0.60f;
     [SerializeField] private float pourHoldTime = 0.2f; // đứng yên cho cảm giác đang chảy
 
-
-
     private TubeView tubeSelected;
     private Vector3 selectedBaseLocalPos;
     private bool locked;
@@ -68,8 +66,10 @@ public class TubeController : Singleton<TubeController>
         tubeSelected = tube;
         selectedBaseLocalPos = tubeSelected.transform.localPosition;
 
-        locked = true;
+        tubeSelected.BoostSortingForPour();
 
+        locked = true;
+        
         currentTween = tube.transform
             .DOLocalMove(selectedBaseLocalPos + Vector3.up * liftY, liftTime)
             .SetEase(liftEase)
@@ -79,6 +79,7 @@ public class TubeController : Singleton<TubeController>
     private void Deselect()
     {
         if (tubeSelected == null) return;
+        tubeSelected.RestoreSortingAfterPour();
         KillTween();
         currentTween = tubeSelected.transform
            .DOLocalMove(selectedBaseLocalPos, liftTime)
@@ -97,7 +98,8 @@ public class TubeController : Singleton<TubeController>
 
         Vector3 fromBase = selectedBaseLocalPos;
         Vector3 toBase = to.transform.localPosition;
-
+        from.RestoreSortingAfterPour();
+        to.BoostSortingForPour();
         seq = DOTween.Sequence();
 
         // A đi xuống
@@ -193,6 +195,7 @@ public class TubeController : Singleton<TubeController>
 
         seq.OnComplete(() =>
         {
+            tubeSelected.RestoreSortingAfterPour();
             tubeSelected = null;
             locked = false;
         });

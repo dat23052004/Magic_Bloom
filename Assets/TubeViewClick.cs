@@ -15,7 +15,6 @@ public class TubeViewClick : MonoBehaviour, IPointerClickHandler
         if (eventData.button != PointerEventData.InputButton.Left) return;
         if (tubeView == null) return;
 
-        // Fallback v? gameplay controller (scene game)
         TubeController.Ins?.OnTubeClicked(tubeView);
     }
 }

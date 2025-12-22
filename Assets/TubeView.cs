@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class TubeView : MonoBehaviour
@@ -13,13 +14,18 @@ public class TubeView : MonoBehaviour
     [SerializeField] public Transform receivePoint;
     [SerializeField] private SpriteRenderer segmentPrefab;
     [SerializeField] private SpriteRenderer waterRect;
-
+ 
     [Range(0f, 0.5f)]
     [SerializeField] private float bottomBoost = 0.30f;
 
     List<SpriteRenderer> segmentViews = new();
-    private Sequence seq;
     private Tween topTween;
+
+    [SerializeField] private SortingGroup sortingGroup;
+
+    private int orderBoost = 2;
+    private int orderDefault = 0;
+
     public void Init(TubeModel m)
     {
         model = m;
@@ -29,12 +35,12 @@ public class TubeView : MonoBehaviour
     public void BuildSements()
     {
         if (model == null || waterRect == null) return;
-        
-        float innerH = waterRect.bounds.size.y;
-        float innerW = waterRect.bounds.size.x;
+
+        float innerH = waterRect.size.y;
+        float innerW = waterRect.size.x;
 
         float bottomY = waterRect.transform.localPosition.y - innerH * 0.5f;
-
+        
         for (int i = 0; i < segmentViews.Count; i++)
             segmentViews[i].gameObject.SetActive(false);
 
@@ -107,63 +113,93 @@ public class TubeView : MonoBehaviour
             segmentViews.RemoveAt(i);
         }
     }
-
     internal void AnimateTopOnly(int topIndexBefore, int amountDelta, float dur)
     {
         if (model == null || waterRect == null) return;
         if (segmentViews == null || segmentViews.Count == 0) return;
         if (amountDelta == 0) return;
 
-        if (topTween != null && topTween.IsActive()) topTween.Kill();
+        if (topTween != null && topTween.IsActive())
+            topTween.Kill();
 
-        float innerH = waterRect.bounds.size.y;
-        float innerW = waterRect.bounds.size.x;
-        float unitH = innerH / model.capacity;
+        // 1) LẤY KÍCH THƯỚC LOCAL CHUẨN
+        float innerH = waterRect.size.y;
+        float innerW = waterRect.size.x;
         float bottomY = waterRect.transform.localPosition.y - innerH * 0.5f;
 
-        // Clamp indexBefore theo pool
-        topIndexBefore = Mathf.Clamp(topIndexBefore, 0, segmentViews.Count - 1);
-        var sr = segmentViews[topIndexBefore];
+        // 2) TÍNH layerH[] (GIỐNG BUILD)
+        int N = model.capacity;
+        float ideal = innerH / N;
+        float bottomH = ideal * (1f + bottomBoost);
+        float otherH = (innerH - bottomH) / (N - 1);
 
-        // ===== CASE A: FROM (amountDelta < 0) =====
-        // animate segment cũ (top trước khi pop)
+        float[] layerH = new float[N];
+        layerH[0] = bottomH;
+        for (int i = 1; i < N; i++)
+            layerH[i] = otherH;
+
+        // Helper: cộng chiều cao theo unit
+        float SumUnits(int startUnit, int count)
+        {
+            float h = 0f;
+            for (int i = 0; i < count; i++)
+                h += layerH[startUnit + i];
+            return h;
+        }
+
+        // CASE A: FROM (amountDelta < 0)
         if (amountDelta < 0)
         {
+
+
+            topIndexBefore = Mathf.Clamp(topIndexBefore, 0, segmentViews.Count - 1);
+            var sr = segmentViews[topIndexBefore];
+
+            int pouredUnits = -amountDelta;
+
             float startH = sr.size.y;
-            float endH = Mathf.Max(0f, startH + unitH * amountDelta);
 
-            // belowUnits của top BEFORE = tổng unit dưới nó.
-            // Với FROM sau khi TryPour đã pop top, nên filledAmount hiện tại = beforeBelowUnits.
-            // => bottomOfTop chính là đáy + (filledAmount hiện tại)*unitH
-            int belowUnitsBefore = model.filledAmount; // sau pop
-            float bottomOfTop = bottomY + belowUnitsBefore * unitH;
+            // tổng unit BEFORE = sau pour + đã rót
+            int filledUnitsBefore = model.filledAmount + pouredUnits;
 
-            float startY = bottomOfTop + startH * 0.5f;
-            float endY = bottomOfTop + endH * 0.5f;
+            // các unit bị rót nằm ở đỉnh segment
+            int startUnit = filledUnitsBefore - pouredUnits;
 
-            sr.size = new Vector2(innerW, startH);
+            float reduceH = 0f;
+            for (int i = 0; i < pouredUnits; i++)
+                reduceH += layerH[startUnit + i];
+
+            float endH = Mathf.Max(0f, startH - reduceH);
+
+            float bottomOfTop1 = bottomY + SumUnits(0, model.filledAmount);
+
+            float startY = bottomOfTop1 + startH * 0.5f;
+            float endY = bottomOfTop1 + endH * 0.5f;
+
 
             Sequence s = DOTween.Sequence();
+
             s.Join(DOTween.To(() => startH, v =>
             {
-                var size = sr.size; size.y = v; sr.size = size;
+                sr.size = new Vector2(innerW, v);
             }, endH, dur).SetEase(Ease.Linear));
 
             s.Join(DOTween.To(() => startY, v =>
             {
-                var pos = sr.transform.localPosition; pos.y = v; sr.transform.localPosition = pos;
+                var p = sr.transform.localPosition;
+                p.y = v;
+                sr.transform.localPosition = p;
             }, endY, dur).SetEase(Ease.Linear));
 
-            if (endH <= 0.0001f)
-                s.OnComplete(() => sr.gameObject.SetActive(false));
-
+                s.OnComplete(() => {
+                    sr.size = new Vector2(innerW, 0f);
+                    sr.gameObject.SetActive(false);
+                }); 
             topTween = s;
             return;
         }
 
-        // ===== CASE B: TO (amountDelta > 0) =====
-        // Sau TryPour: TO có thể merge vào top cũ hoặc add segment mới.
-        // Nếu add segment mới, topIndexAfter = topIndexBefore + 1.
+        // CASE B: TO (amountDelta > 0)
         int topIndexAfter = model.segments.Count - 1;
         topIndexAfter = Mathf.Clamp(topIndexAfter, 0, segmentViews.Count - 1);
 
@@ -171,37 +207,53 @@ public class TubeView : MonoBehaviour
         srAfter.gameObject.SetActive(true);
         srAfter.drawMode = SpriteDrawMode.Sliced;
 
-        // set màu theo top AFTER (luôn đúng)
-        var topSegAfter = model.segments[model.segments.Count - 1];
-        srAfter.color = ColorPalette.GetColor(topSegAfter.colorId);
+        var topSeg = model.segments[topIndexAfter];
+        srAfter.color = ColorPalette.GetColor(topSeg.colorId);
 
         bool addedNewSegment = (topIndexAfter != topIndexBefore);
 
         float startH_to = addedNewSegment ? 0f : srAfter.size.y;
-        float endH_to = startH_to + unitH * amountDelta;
+        float endH_to = startH_to + SumUnits(
+            model.filledAmount - topSeg.Amount,
+            amountDelta
+        );
 
-        // belowUnits của top AFTER = filledAmount - topAmountAfter
-        int belowUnitsAfter = model.filledAmount - topSegAfter.Amount;
-        float bottomOfTopAfter = bottomY + belowUnitsAfter * unitH;
+        int belowUnits = model.filledAmount - topSeg.Amount;
+        float bottomOfTop = bottomY + SumUnits(0, belowUnits);
 
-        float startY_to = bottomOfTopAfter + startH_to * 0.5f;
-        float endY_to = bottomOfTopAfter + endH_to * 0.5f;
+        float startY_to = bottomOfTop + startH_to * 0.5f;
+        float endY_to = bottomOfTop + endH_to * 0.5f;
 
         srAfter.size = new Vector2(innerW, startH_to);
         srAfter.transform.localPosition = new Vector3(0f, startY_to, 0f);
 
         Sequence s2 = DOTween.Sequence();
+
         s2.Join(DOTween.To(() => startH_to, v =>
         {
-            var size = srAfter.size; size.y = v; srAfter.size = size;
+            srAfter.size = new Vector2(innerW, v);
         }, endH_to, dur).SetEase(Ease.Linear));
 
         s2.Join(DOTween.To(() => startY_to, v =>
         {
-            var pos = srAfter.transform.localPosition; pos.y = v; srAfter.transform.localPosition = pos;
+            var p = srAfter.transform.localPosition;
+            p.y = v;
+            srAfter.transform.localPosition = p;
         }, endY_to, dur).SetEase(Ease.Linear));
 
         topTween = s2;
+    }
+
+    public void BoostSortingForPour()
+    {
+        if (sortingGroup == null) return;
+        sortingGroup.sortingOrder = orderBoost;
+    }
+
+    public void RestoreSortingAfterPour()
+    {
+        if (sortingGroup == null) return;
+        sortingGroup.sortingOrder = orderDefault;
     }
 
 }
