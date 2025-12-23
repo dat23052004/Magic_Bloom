@@ -343,19 +343,24 @@ MonoBehaviour:
   liftY: 1.3
   liftTime: 0.2
   liftEase: 27
-  pourAboveReceive: 1.3
-  sideOffsetAmount: 1.2
-  moveSpeed: 2
-  rotateDelayRatio: 0.1
-  splitBlendRatio: 0.06
-  angleAtA: -40
-  angleAtPour: -70
+  pourAboveReceive: 1.2
+  sideOffsetAmount: 1
+  moveSpeed: 1.7
+  safeTiltTime: 0.12
+  approachTiltTime: 0.14
+  pourTiltTime: 0.18
   moveEase: 1
   tiltEase: 4
+  safeTiltWhenEmpty: -28
+  safeTiltWhenFull: -6
+  angleA_Min: -25
+  angleA_Max: -60
+  pourAngleMin: -60
+  pourAngleMax: -95
   pourUnitTime: 0.08
   pourMinTime: 0.15
   pourMaxTime: 0.6
-  pourHoldTime: 0.2
+  pourHoldTime: 2
 --- !u!1 &254957159
 GameObject:
   m_ObjectHideFlags: 0

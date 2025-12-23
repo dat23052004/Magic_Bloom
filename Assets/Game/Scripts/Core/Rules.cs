@@ -11,31 +11,27 @@ public static class Rules
         if (ReferenceEquals(from, to)) return false;
         if (!from.isEmpty && from.filledAmount == from.capacity && from.segments.Count == 1)
             return false;
-
-        var fromTop = from.top.Value;
+        from.GetTop(out var fromTop);
         if (to.freeAmount < fromTop.Amount) return false; 
         if(to.isEmpty) return true;
-        return to.top.Value.colorId == fromTop.colorId;
+        from.GetTop(out var toTop);
+        return toTop.colorId == fromTop.colorId;
     }
 
     public static void Pour(TubeModel from, TubeModel to)
     {
         if (!CanPour(from, to)) return;
-
-        var seg = from.top.Value;
+        from.GetTop(out var fromTop);
         from.segments.RemoveAt(from.segments.Count - 1);
-
-        if (!to.isEmpty && to.top.Value.colorId == seg.colorId)
+        if (!to.isEmpty && to.GetTop(out var toTop) && toTop.colorId == fromTop.colorId)
         {
-            var toTop = to.top.Value;
-            toTop.Amount += seg.Amount;
+            toTop.Amount += fromTop.Amount;
             to.segments[to.segments.Count - 1] = toTop;
         }
         else
         {
-            to.segments.Add(seg);
+            to.segments.Add(fromTop);
         }
     }
-
 }
 

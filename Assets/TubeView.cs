@@ -10,7 +10,8 @@ public class TubeView : MonoBehaviour
     public TubeModel model;
 
     [SerializeField] private Transform segmentsRoot;
-    [SerializeField] public Transform pourPoint;
+    [SerializeField] public Transform pourPoint_Right;
+    [SerializeField] public Transform pourPoint_Left;
     [SerializeField] public Transform receivePoint;
     [SerializeField] private SpriteRenderer segmentPrefab;
     [SerializeField] private SpriteRenderer waterRect;
@@ -255,5 +256,9 @@ public class TubeView : MonoBehaviour
         if (sortingGroup == null) return;
         sortingGroup.sortingOrder = orderDefault;
     }
-
+    public Transform GetPourPointForTarget(Transform receivePoint)
+    {
+        if (receivePoint.position.x >= transform.position.x) return pourPoint_Right;
+        return pourPoint_Left;
+    }
 }

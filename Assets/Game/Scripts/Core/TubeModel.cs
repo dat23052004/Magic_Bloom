@@ -28,8 +28,17 @@ public class TubeModel
     }
 
     public int freeAmount => capacity - filledAmount;
-    public bool isEmpty => segments.Count == 0;  
-    public ColorSegment? top => isEmpty ? null : segments[segments.Count - 1];
+    public bool isEmpty => segments.Count == 0;
+    public bool GetTop(out ColorSegment seg)
+    {
+        if (isEmpty)
+        {
+            seg = default;
+            return false;
+        }
 
+        seg = segments[segments.Count - 1];
+        return true;
+    }
 }
 
