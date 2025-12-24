@@ -14,7 +14,7 @@ public static class Rules
         from.GetTop(out var fromTop);
         if (to.freeAmount < fromTop.Amount) return false; 
         if(to.isEmpty) return true;
-        from.GetTop(out var toTop);
+        to.GetTop(out var toTop);
         return toTop.colorId == fromTop.colorId;
     }
 

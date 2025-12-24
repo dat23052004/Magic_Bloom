@@ -12,13 +12,11 @@ public class TubeController : Singleton<TubeController>
 
     [SerializeField] private Ease liftEase = Ease.OutBack;
 
-    [SerializeField] private float pourAboveReceive = 3f;
-    [SerializeField] private float sideOffsetAmount = 1.2f;
+    [SerializeField] private float pourAboveReceive = 1.2f;
+    [SerializeField] private float sideOffsetAmount = 1f;
     [SerializeField] private float moveSpeed = 8f; // units/sec theo quãng đường POUR
 
-
     [Header("Tilt Timing")]
-    [SerializeField] private float safeTiltTime = 0.12f;      // tilt an toàn khi nâng
     [SerializeField] private float approachTiltTime = 0.14f;  // tilt angleA (chuẩn bị) trước khi move hoặc khi tới nơi
     [SerializeField] private float pourTiltTime = 0.18f;      // tilt anglePour khi tới điểm
     [SerializeField] private Ease moveEase = Ease.InOutSine;
@@ -30,11 +28,6 @@ public class TubeController : Singleton<TubeController>
     [SerializeField] private float pourAngleMin = -60f;       // rót ít
     [SerializeField] private float pourAngleMax = -80f;       // rót nhiều
 
-    [Header("Pour Timing")]
-    [SerializeField] private float pourUnitTime = 0.08f;
-    [SerializeField] private float pourMinTime = 0.15f;
-    [SerializeField] private float pourMaxTime = 0.60f;
-    [SerializeField] private float pourHoldTime = 0.2f;
 
     private TubeView tubeSelected;
     private Vector3 selectedBaseLocalPos;
@@ -46,14 +39,6 @@ public class TubeController : Singleton<TubeController>
     private Vector3 debugFinalPos;
     private bool hasDebugPos = true;
 
-    [SerializeField] private bool debugPhase2 = true;
-    [SerializeField] private int debugSteps2 = 30;
-
-    private Vector3 dbg2_startPourPos;
-    private Vector3 dbg2_targetPourPos;
-    private bool dbg2_has = false;
-    private float dbg2_kMove = 1f;
-    private bool dbg2_moveCanFinish = true;
     public void OnTubeClicked(TubeView tube)
     {
         if (locked || tube == null || tube.model == null) return;
@@ -168,29 +153,29 @@ public class TubeController : Singleton<TubeController>
             amount = topSeg.Amount;
         }
 
-        float pourDur = Mathf.Clamp(amount * pourUnitTime, pourMinTime, pourMaxTime);
-
+       
         float dir = Mathf.Sign(receive.position.x - pour.position.x);
         if (Mathf.Abs(dir) < 0.0001f) dir = 1f;
 
         float angleAtA = ComputeAngleA(from.model);
-        float angleAAbs = Mathf.Abs(angleAtA);
-        float signedAngleA = -dir * angleAAbs;
+        float signedAngleA = -dir * angleAtA;
 
         float anglePour = ComputePourAngle(from.model);
-        float anglePourAbs = Mathf.Abs(anglePour);
-        float signedAnglePour = -dir * anglePourAbs;
+        float signedAnglePour = -dir * anglePour;
 
         seq = DOTween.Sequence();
 
         Tween go = MoveToPourSpot(tube, pour, receive, pourAboveReceive, sideOffsetAmount, signedAngleA, moveSpeed, 0.6f);
         seq.Append(go);
+        float pourDur = 0f;
 
-        var t2 = RotateWhileSlidePourToReceiveX_ThenHold(tube, pour, receive,signedAnglePour,moveSpeed,0.18f);
+        var t2 = RotateWhileSlidePourToReceiveX_ThenHold(tube, pour, receive,signedAnglePour,moveSpeed,d => pourDur = d);
+
         seq.Append(t2);
+        seq.AppendCallback(() => Debug.Log("computed pourDur = " + pourDur));
 
         // 2) Hold để nhìn “chảy”
-        seq.AppendInterval(pourHoldTime);
+        seq.AppendInterval(1f);
 
         // 3) Logic đổ
         seq.AppendCallback(() =>
@@ -241,8 +226,7 @@ public class TubeController : Singleton<TubeController>
         float dirX = Mathf.Sign(tube.position.x - receive.position.x);
         if (dirX == 0) dirX = 1f;
 
-        Vector3 approachPourPos =
-            receive.position + Vector3.up * upOffset + Vector3.right * dirX * sideOffset;
+        Vector3 approachPourPos = receive.position + Vector3.up * upOffset + Vector3.right * dirX * sideOffset;
         Vector3 finalPourPos = receive.position;
         debugApproachPos = approachPourPos;
         debugFinalPos = finalPourPos;
@@ -278,7 +262,7 @@ public class TubeController : Singleton<TubeController>
       Transform receive,
       float angleTo,
       float xSpeed,
-      float rotDur
+      Action<float> onComputedDuration = null
   )
     {
         Vector3 startTubePos = default;
@@ -289,8 +273,9 @@ public class TubeController : Singleton<TubeController>
         float angleFrom = 0f;
         float kMove = 1f;           // thời điểm (0..1) mà move hoàn tất
         bool moveCanFinish = true;  // chỉ để bạn debug
-
-        Tweener tw = DOTween.To(() => 0f, t01 =>
+        const float baseDur = 1f;
+        Tweener tw = null;
+        tw = DOVirtual.Float(0f,1f,baseDur, t01 =>
         {
             // ROT chạy suốt rotDur
             float uRot = DOVirtual.EasedValue(0f, 1f, t01, tiltEase);
@@ -313,10 +298,9 @@ public class TubeController : Singleton<TubeController>
             {
                 pourPos = targetPourPos; // chạm receive.x rồi giữ
             }
-
             ApplyPoseKeepPour(tube, startTubePos, startRot, startPourPos, pourPos, z);
 
-        }, 1f, rotDur)
+        })
         .SetEase(Ease.Linear)
         .OnStart(() =>
         {
@@ -332,25 +316,12 @@ public class TubeController : Singleton<TubeController>
             targetPourPos = new Vector3(receive.position.x, startPourPos.y, startPourPos.z);
 
             float dx = Mathf.Abs(targetPourPos.x - startPourPos.x);
-            float moveDur = (xSpeed <= 0f || dx < 0.0001f) ? 0f : dx / xSpeed;
+            float rotDur = (xSpeed <= 0f || dx < 0.0001f) ? 0f : dx / xSpeed;
 
-            if (moveDur <= rotDur + 0.0001f)
-            {
-                moveCanFinish = true;
-                kMove = (rotDur <= 0.0001f) ? 1f : Mathf.Clamp01(moveDur / rotDur);
-            }
-            else
-            {
-                // không kịp tới receive.x trong rotDur
-                moveCanFinish = false;
-                kMove = 1f;
-            }
+            tw.timeScale = baseDur / rotDur; // scale thời gian để đạt rotDur
+            moveCanFinish = true;
 
-            dbg2_startPourPos = startPourPos;
-            dbg2_targetPourPos = targetPourPos;
-            dbg2_kMove = kMove;
-            dbg2_moveCanFinish = moveCanFinish;
-            dbg2_has = true;
+            onComputedDuration?.Invoke(rotDur);
         });
 
         return tw;
@@ -360,16 +331,16 @@ public class TubeController : Singleton<TubeController>
     {
         if (!model.GetTop(out var topSeg)) return 0f;
 
-        float amount01 = Mathf.Clamp01((float)topSeg.Amount / model.capacity);
-        return Mathf.Lerp(angleA_Min, angleA_Max, amount01);
+        float amount01 = Mathf.Clamp01((float)model.filledAmount / model.capacity);
+        return Mathf.Abs(Mathf.Lerp(angleA_Max, angleA_Min, amount01));
     }
 
     private float ComputePourAngle(TubeModel model)
     {
         if (!model.GetTop(out var TopSeg)) return 0f;
-        float amount01 = Mathf.Clamp01((float)TopSeg.Amount / model.capacity);
-        return Mathf.Lerp(pourAngleMin, pourAngleMax, amount01);
-    }   
+        float amount01 = Mathf.Clamp01((float)(model.filledAmount - TopSeg.Amount) / model.capacity);
+        return Mathf.Abs(Mathf.Lerp(pourAngleMax, pourAngleMin, amount01));
+    }    
 
     private void OnDrawGizmos()
     {
@@ -383,46 +354,6 @@ public class TubeController : Singleton<TubeController>
 
         Gizmos.color = Color.white;
         Gizmos.DrawLine(debugApproachPos, debugFinalPos);
-
-        // ======= ĐOẠN 2: đường đi POUR POINT (miệng bình) =======
-        if (!debugPhase2 || !dbg2_has) return;
-
-        Gizmos.color = Color.cyan;
-
-        Vector3 prev = dbg2_startPourPos;
-        int steps = Mathf.Max(2, debugSteps2);
-
-        for (int i = 1; i <= steps; i++)
-        {
-            float t01 = i / (float)steps;
-
-            Vector3 p;
-            if (!dbg2_moveCanFinish)
-            {
-                // không kịp tới đích: lerp suốt 0..1
-                p = Vector3.Lerp(dbg2_startPourPos, dbg2_targetPourPos, t01);
-            }
-            else if (t01 <= dbg2_kMove && dbg2_kMove > 0.0001f)
-            {
-                float u = t01 / dbg2_kMove; // 0..1
-                p = Vector3.Lerp(dbg2_startPourPos, dbg2_targetPourPos, u);
-            }
-            else
-            {
-                p = dbg2_targetPourPos; // giữ tại receive.x
-            }
-
-            Gizmos.DrawLine(prev, p);
-            prev = p;
-        }
-
-        // marker cho start/target của đoạn 2
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawSphere(dbg2_startPourPos, 0.08f);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawSphere(dbg2_targetPourPos, 0.08f);
-
     }
 
     void KillSeq()
