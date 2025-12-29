@@ -1,9 +1,6 @@
 ﻿using DG.Tweening;
 using System;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.InputSystem.Controls.AxisControl;
 
 public class TubeController : Singleton<TubeController>
 {
@@ -18,7 +15,7 @@ public class TubeController : Singleton<TubeController>
 
     [Header("Tilt Timing")]
     [SerializeField] private float approachTiltTime = 0.14f;  // tilt angleA (chuẩn bị) trước khi move hoặc khi tới nơi
-    [SerializeField] private float pourTiltTime = 0.18f;      // tilt anglePour khi tới điểm
+    [SerializeField] private float minMoveTime = 0.18f;      // thời gian di chuyển ngắn nhất 
     [SerializeField] private Ease moveEase = Ease.InOutSine;
     [SerializeField] private Ease tiltEase = Ease.InOutSine;
 
@@ -28,17 +25,11 @@ public class TubeController : Singleton<TubeController>
     [SerializeField] private float pourAngleMin = -60f;       // rót ít
     [SerializeField] private float pourAngleMax = -80f;       // rót nhiều
 
-
     private TubeView tubeSelected;
     private Vector3 selectedBaseLocalPos;
     private bool locked;
     private Tween currentTween;
     private Sequence seq;
-
-    private Vector3 debugApproachPos;
-    private Vector3 debugFinalPos;
-    private bool hasDebugPos = true;
-
     public void OnTubeClicked(TubeView tube)
     {
         if (locked || tube == null || tube.model == null) return;
@@ -148,12 +139,12 @@ public class TubeController : Singleton<TubeController>
 
         // tính thời gian “đổ”
         int amount = 0;
-        if(from.model.GetTop(out var topSeg))
+        if (from.model.GetTop(out var topSeg))
         {
             amount = topSeg.Amount;
         }
 
-       
+
         float dir = Mathf.Sign(receive.position.x - pour.position.x);
         if (Mathf.Abs(dir) < 0.0001f) dir = 1f;
 
@@ -165,33 +156,17 @@ public class TubeController : Singleton<TubeController>
 
         seq = DOTween.Sequence();
 
-        Tween go = MoveToPourSpot(tube, pour, receive, pourAboveReceive, sideOffsetAmount, signedAngleA, moveSpeed, 0.6f);
+        Tween go = MoveToPourSpot(tube, pour, receive, pourAboveReceive, sideOffsetAmount, signedAngleA, moveSpeed, approachTiltTime, minMoveTime);
+
+        int fromTopIndex = from.model.segments.Count - 1;
+        int toTopIndex = to.model.segments.Count - 1;
+
+        float pourDuration = 0.6f; // thời gian đổ cố định cho đẹp
+        var t2 = RotateWhileSlidePourToReceiveX_ThenHold(tube, pour, receive, signedAnglePour, pourDuration);
+        var flow = CreatePourFlowTween(from, to, fromTopIndex, toTopIndex, amount, pour, receive, pourDuration);
+
         seq.Append(go);
-        float pourDur = 0f;
-
-        var t2 = RotateWhileSlidePourToReceiveX_ThenHold(tube, pour, receive,signedAnglePour,moveSpeed,d => pourDur = d);
-
-        seq.Append(t2);
-        seq.AppendCallback(() => Debug.Log("computed pourDur = " + pourDur));
-
-        // 2) Hold để nhìn “chảy”
-        seq.AppendInterval(1f);
-
-        // 3) Logic đổ
-        seq.AppendCallback(() =>
-        {
-            // snapshot index trước khi model đổi
-            int fromTopIndex = from.model.segments.Count - 1;
-            int toTopIndex = to.model.segments.Count - 1;
-
-            // đổi model
-            Rules.Pour(from.model, to.model);
-
-            // animate
-            from.AnimateTopOnly(fromTopIndex, -amount, pourDur);
-            to.AnimateTopOnly(toTopIndex, +amount, pourDur);
-        });
-        seq.AppendInterval(pourDur);
+        seq.Append(t2).Join(flow);
 
         // 4) Về lại: quay thẳng trước (đẹp hơn), rồi bay về lift pose
         float backRotDur = 0.18f;
@@ -211,13 +186,9 @@ public class TubeController : Singleton<TubeController>
         });
         currentTween = seq;
     }
-   
-
     private Tween MoveToPourSpot(Transform tube, Transform pour, Transform receive, float upOffset
-        , float sideOffset, float angleA, float speed, float tiltReachRatio)
+     , float sideOffset, float angleA, float speed, float approachTiltTime, float minMoveTime)
     {
-        tiltReachRatio = Mathf.Clamp01(tiltReachRatio);
-
         Vector3 startTubePos = tube.position;
         Quaternion startRot = tube.rotation;
         Vector3 startPourPos = pour.position;
@@ -227,23 +198,20 @@ public class TubeController : Singleton<TubeController>
         if (dirX == 0) dirX = 1f;
 
         Vector3 approachPourPos = receive.position + Vector3.up * upOffset + Vector3.right * dirX * sideOffset;
-        Vector3 finalPourPos = receive.position;
-        debugApproachPos = approachPourPos;
-        debugFinalPos = finalPourPos;
         float d = Vector3.Distance(startPourPos, approachPourPos);
+        float moveDur = (speed <= 0f || d <= 0.000001f) ? 0f : d / speed;
+        float duration = Mathf.Max(moveDur, approachTiltTime, minMoveTime);
+        float tiltReachRatio = (duration <= 0.000001f) ? 1f : Mathf.Clamp01(approachTiltTime / duration);
+        return DOVirtual.Float(0f, 1f, duration, t01 =>
+            {
+                float uMove = DOVirtual.EasedValue(0f, 1f, t01, moveEase);
+                Vector3 pourPos = Vector3.Lerp(startPourPos, approachPourPos, uMove);
 
-        float duration = (speed <= 0f || d <= 0.000001f) ? 0f : d / speed;
-        return DOTween.To(() => 0f, tLin =>
-        {
-            float uMove = DOVirtual.EasedValue(0f, 1f, tLin, moveEase);
-            Vector3 pourPos = Vector3.Lerp(startPourPos, approachPourPos, uMove);
-
-            float reach = (tiltReachRatio <= 0.000001f) ? 1f : Mathf.Clamp01(tLin / tiltReachRatio);
-            float uRot = DOVirtual.EasedValue(0f, 1f, reach, tiltEase);
-            float zAngle = Mathf.Lerp(0f, angleA, uRot);
-            ApplyPoseKeepPour(tube, startTubePos, startRot, startPourPos, pourPos, zAngle);
-
-        }, 1f, duration).SetEase(moveEase);
+                float reach = (tiltReachRatio <= 0.000001f) ? 1f : Mathf.Clamp01(t01 / tiltReachRatio);
+                float uRot = DOVirtual.EasedValue(0f, 1f, reach, tiltEase);
+                float zAngle = Mathf.Lerp(0f, angleA, uRot);
+                ApplyPoseKeepPour(tube, startTubePos, startRot, startPourPos, pourPos, zAngle);
+            }).SetEase(Ease.Linear);
     }
 
     private void ApplyPoseKeepPour(Transform tube, Vector3 startTubePos, Quaternion startRot,
@@ -256,14 +224,7 @@ public class TubeController : Singleton<TubeController>
         tube.position = pourPos + offset;
     }
 
-    private Tween RotateWhileSlidePourToReceiveX_ThenHold(
-      Transform tube,
-      Transform pour,
-      Transform receive,
-      float angleTo,
-      float xSpeed,
-      Action<float> onComputedDuration = null
-  )
+    private Tween RotateWhileSlidePourToReceiveX_ThenHold(Transform tube, Transform pour, Transform receive, float angleTo, float duration)
     {
         Vector3 startTubePos = default;
         Quaternion startRot = default;
@@ -271,35 +232,15 @@ public class TubeController : Singleton<TubeController>
         Vector3 targetPourPos = default;
 
         float angleFrom = 0f;
-        float kMove = 1f;           // thời điểm (0..1) mà move hoàn tất
-        bool moveCanFinish = true;  // chỉ để bạn debug
-        const float baseDur = 1f;
         Tweener tw = null;
-        tw = DOVirtual.Float(0f,1f,baseDur, t01 =>
+        tw = DOVirtual.Float(0f, 1f, 1f, t01 =>
         {
-            // ROT chạy suốt rotDur
             float uRot = DOVirtual.EasedValue(0f, 1f, t01, tiltEase);
             float z = Mathf.Lerp(angleFrom, angleTo, uRot);
 
-            // MOVE: trong đoạn [0..kMove] thì lerp, sau đó giữ
-            Vector3 pourPos;
-            if (!moveCanFinish)
-            {
-                // nếu moveDur > rotDur: vẫn lerp theo t01 (không kịp tới đích)
-                float uMove = DOVirtual.EasedValue(0f, 1f, t01, moveEase);
-                pourPos = Vector3.Lerp(startPourPos, targetPourPos, uMove);
-            }
-            else if (t01 <= kMove && kMove > 0.0001f)
-            {
-                float uMove = DOVirtual.EasedValue(0f, 1f, t01 / kMove, moveEase);
-                pourPos = Vector3.Lerp(startPourPos, targetPourPos, uMove);
-            }
-            else
-            {
-                pourPos = targetPourPos; // chạm receive.x rồi giữ
-            }
-            ApplyPoseKeepPour(tube, startTubePos, startRot, startPourPos, pourPos, z);
+            Vector3 pourPos = Vector3.Lerp(startPourPos, targetPourPos, t01);
 
+            ApplyPoseKeepPour(tube, startTubePos, startRot, startPourPos, pourPos, z);
         })
         .SetEase(Ease.Linear)
         .OnStart(() =>
@@ -314,17 +255,24 @@ public class TubeController : Singleton<TubeController>
 
             // chỉ canh X: đưa pour.x về receive.x
             targetPourPos = new Vector3(receive.position.x, startPourPos.y, startPourPos.z);
-
-            float dx = Mathf.Abs(targetPourPos.x - startPourPos.x);
-            float rotDur = (xSpeed <= 0f || dx < 0.0001f) ? 0f : dx / xSpeed;
-
-            tw.timeScale = baseDur / rotDur; // scale thời gian để đạt rotDur
-            moveCanFinish = true;
-
-            onComputedDuration?.Invoke(rotDur);
         });
 
         return tw;
+    }
+    private Tween CreatePourFlowTween(TubeView from, TubeView to, int fromTopIndex, int toTopIndex, int amounts, Transform pour, Transform receive, float duration)
+    {
+        Tweener tween = null;
+
+        tween = DOVirtual.Float(0f, 1f, 1f, _ => { })
+            .SetEase(Ease.Linear)
+            .OnStart(() =>
+            {
+                Rules.Pour(from.model, to.model);
+                from.AnimateTopOnly(fromTopIndex, -amounts, duration);
+                to.AnimateTopOnly(toTopIndex, +amounts, duration);
+            });
+
+        return tween;
     }
 
     private float ComputeAngleA(TubeModel model)
@@ -340,20 +288,6 @@ public class TubeController : Singleton<TubeController>
         if (!model.GetTop(out var TopSeg)) return 0f;
         float amount01 = Mathf.Clamp01((float)(model.filledAmount - TopSeg.Amount) / model.capacity);
         return Mathf.Abs(Mathf.Lerp(pourAngleMax, pourAngleMin, amount01));
-    }    
-
-    private void OnDrawGizmos()
-    {
-        if (!hasDebugPos) return;
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(debugApproachPos, 0.15f);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(debugFinalPos, 0.12f);
-
-        Gizmos.color = Color.white;
-        Gizmos.DrawLine(debugApproachPos, debugFinalPos);
     }
 
     void KillSeq()
