@@ -15,12 +15,18 @@ public class TubeView : MonoBehaviour
     [SerializeField] public Transform receivePoint;
     [SerializeField] private SpriteRenderer segmentPrefab;
     [SerializeField] private SpriteRenderer waterRect;
- 
+
+    [Header("Cap Animation")]
+    [SerializeField] private Transform cap;
+    [SerializeField] private Ease capEase = Ease.OutBack;
+    [SerializeField] private float capMoveDuration = 0.5f;
+    [SerializeField] private float capFadeInDelay = 0.2f; 
+    [SerializeField] private float capFadeInDuration = 0.1f;
+
     [Range(0f, 0.5f)]
     [SerializeField] private float bottomBoost = 0.30f;
 
     List<SpriteRenderer> segmentViews = new();
-    private Tween topTween;
 
     [SerializeField] private SortingGroup sortingGroup;
 
@@ -41,7 +47,7 @@ public class TubeView : MonoBehaviour
         float innerW = waterRect.size.x;
 
         float bottomY = waterRect.transform.localPosition.y - innerH * 0.5f;
-        
+
         for (int i = 0; i < segmentViews.Count; i++)
             segmentViews[i].gameObject.SetActive(false);
 
@@ -63,7 +69,7 @@ public class TubeView : MonoBehaviour
         // 1) Build layer heights (chỉ bù đáy)
         int N = model.capacity;
         float ideal = innerH / N;
-        float bottomH = ideal * (1+bottomBoost);             // boost đáy
+        float bottomH = ideal * (1 + bottomBoost);             // boost đáy
         float otherH = (innerH - bottomH) / (N - 1);
 
         float[] layerH = new float[N];
@@ -119,6 +125,7 @@ public class TubeView : MonoBehaviour
         if (model == null || waterRect == null) return;
         if (segmentViews == null || segmentViews.Count == 0) return;
         if (amountDelta == 0) return;
+        Tween topTween = null;
 
         if (topTween != null && topTween.IsActive())
             topTween.Kill();
@@ -192,10 +199,11 @@ public class TubeView : MonoBehaviour
                 sr.transform.localPosition = p;
             }, endY, dur).SetEase(Ease.Linear));
 
-                s.OnComplete(() => {
-                    sr.size = new Vector2(innerW, 0f);
-                    sr.gameObject.SetActive(false);
-                }); 
+            s.OnComplete(() =>
+            {
+                sr.size = new Vector2(innerW, 0f);
+                sr.gameObject.SetActive(false);
+            });
             topTween = s;
             return;
         }
@@ -245,6 +253,25 @@ public class TubeView : MonoBehaviour
         topTween = s2;
     }
 
+    public void AnimateCap()
+    {
+        if (cap == null) return;
+        cap.gameObject.SetActive(true);
+        Vector3 originalLocalPos = cap.localPosition;
+        cap.localPosition = originalLocalPos + new Vector3(0f, 7f, 0f);
+
+        var capRender = cap.GetComponent<SpriteRenderer>();
+        if (capRender != null)
+        {
+            Color c = capRender.color;
+            c.a = 0f;
+            capRender.color = c;
+
+            capRender.DOFade(1f, capFadeInDuration).SetDelay(capFadeInDelay).SetEase(Ease.InQuad);
+        }
+        cap.DOLocalMove(originalLocalPos, capMoveDuration)
+           .SetEase(capEase);
+    }
     public void BoostSortingForPour()
     {
         if (sortingGroup == null) return;

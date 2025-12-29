@@ -678,8 +678,8 @@ Transform:
   - {fileID: 4927992922953823537}
   - {fileID: 8976673906241090200}
   - {fileID: 2818735820325703095}
-  - {fileID: 633243754510537865}
   - {fileID: 435704966688488351}
+  - {fileID: 633243754510537865}
   - {fileID: 6073232472370979051}
   - {fileID: 5001809078571477973}
   m_Father: {fileID: 0}
@@ -702,6 +702,9 @@ MonoBehaviour:
   receivePoint: {fileID: 5001809078571477973}
   segmentPrefab: {fileID: 4245304009244628178, guid: 5f3c33f46c228b54eb6e0832ba0131b3, type: 3}
   waterRect: {fileID: 9060907176878244509}
+  cap: {fileID: 633243754510537865}
+  capMoveDuration: 0.5
+  capEase: 27
   bottomBoost: 0.249
   sortingGroup: {fileID: 1112422384311696354}
 --- !u!114 &3078156941143678405

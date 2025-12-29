@@ -30,6 +30,7 @@ public class TubeController : Singleton<TubeController>
     private bool locked;
     private Tween currentTween;
     private Sequence seq;
+    
     public void OnTubeClicked(TubeView tube)
     {
         if (locked || tube == null || tube.model == null) return;
@@ -180,9 +181,17 @@ public class TubeController : Singleton<TubeController>
 
         seq.OnComplete(() =>
         {
-            if (tubeSelected != null) tubeSelected.RestoreSortingAfterPour();
+            if (tubeSelected != null) 
+            {
+                tubeSelected.RestoreSortingAfterPour();
+                if (Rules.IsCompleted(to.model))
+                {
+                    to.AnimateCap();
+                }
+            }
             tubeSelected = null;
             locked = false;
+           
         });
         currentTween = seq;
     }
@@ -223,7 +232,6 @@ public class TubeController : Singleton<TubeController>
         Vector3 offset = rot * Quaternion.Inverse(startRot) * (startTubePos - startPourPos);
         tube.position = pourPos + offset;
     }
-
     private Tween RotateWhileSlidePourToReceiveX_ThenHold(Transform tube, Transform pour, Transform receive, float angleTo, float duration)
     {
         Vector3 startTubePos = default;

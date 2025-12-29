@@ -345,9 +345,9 @@ MonoBehaviour:
   liftEase: 27
   pourAboveReceive: 1.2
   sideOffsetAmount: 1
-  moveSpeed: 8
-  approachTiltTime: 1
-  minMoveTime: 1
+  moveSpeed: 5
+  approachTiltTime: 0.16
+  minMoveTime: 0.2
   moveEase: 1
   tiltEase: 4
   angleA_Min: -25

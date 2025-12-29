@@ -33,5 +33,12 @@ public static class Rules
             to.segments.Add(fromTop);
         }
     }
+
+    public static bool IsCompleted(TubeModel tube)
+    {
+        if (tube.isEmpty) return true;
+        if (tube.segments.Count != 1) return false;
+        return tube.segments[0].Amount == 2;
+    }
 }
 
