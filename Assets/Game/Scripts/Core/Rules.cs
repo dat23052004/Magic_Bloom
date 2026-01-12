@@ -38,7 +38,7 @@ public static class Rules
     {
         if (tube.isEmpty) return true;
         if (tube.segments.Count != 1) return false;
-        return tube.segments[0].Amount == 2;
+        return tube.segments[0].Amount == tube.capacity;
     }
 }
 
