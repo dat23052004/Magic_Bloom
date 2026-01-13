@@ -19,10 +19,13 @@ public class TubeZigZagVFX : MonoBehaviour
     [SerializeField] private Ease moveEase = Ease.OutSine;
 
     [SerializeField] private float extraFadeDelay = 0.05f;
+    [SerializeField] private float delay = 0.1f;
 
     private bool isRightSide = false;
-    private Tween leftTween, rightTween;
 
+    private Tween _leftMove, _leftDisable;
+    private Tween _rightMove, _rightDisable;
+    private Sequence _seq;
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -34,23 +37,30 @@ public class TubeZigZagVFX : MonoBehaviour
     public void Play()
     {
         if (!leftPS || !rightPS || !tubeBottom || !tubeTop) return;
-        leftTween?.Kill();
-        rightTween?.Kill();
 
         Vector3 bottomPos = tubeBottom.position;
         Vector3 topPos = tubeTop.position;
 
         Vector3[] leftPath = BuildPath(bottomPos, topPos, tubeBottom, startSideOffsetX, zigCount, isRightSide);
-        Vector3[] rightPath = BuildPath(bottomPos, topPos, tubeBottom, startSideOffsetX, zigCount, !isRightSide);
+        Vector3[] rightPath = BuildPath(bottomPos + Vector3.down * 0.5f, topPos, tubeBottom, startSideOffsetX, zigCount, !isRightSide);
 
         // Chạy 2 PS song song
-        PlayParticleAlongPath(leftPS, leftPath, moveTime, ref leftTween);
-        PlayParticleAlongPath(rightPS, rightPath, moveTime, ref rightTween);
+
+        _seq?.Kill();
+        _seq = DOTween.Sequence();
+        _seq.Append(PlayParticleAlongPath(leftPS, leftPath, moveTime, ref _leftMove, ref _leftDisable));
+        _seq.Insert(delay, PlayParticleAlongPath(rightPS, rightPath, moveTime-delay, ref _rightMove, ref _rightDisable));
+        _seq.Play();
+
     }
 
-    private void PlayParticleAlongPath(ParticleSystem ps, Vector3[] path, float moveTime, ref Tween tween)
+    private Tween PlayParticleAlongPath(ParticleSystem ps, Vector3[] path, float moveTime, ref Tween moveTween, ref Tween disableTween)
     {
         if (!ps.gameObject.activeInHierarchy) ps.gameObject.SetActive(true);
+
+        moveTween?.Kill();
+        disableTween?.Kill();
+        ps.transform.DOKill();
 
         var emission = ps.emission;
         emission.enabled = true;
@@ -62,7 +72,7 @@ public class TubeZigZagVFX : MonoBehaviour
         Transform tr = ps.transform;
         tr.position = path[0];
 
-        tween = tr.DOPath(path, moveTime, PathType.CatmullRom)
+        Tween tween = tr.DOPath(path, moveTime, PathType.CatmullRom)
             .SetEase(moveEase)
             .OnComplete(() =>
             {
@@ -72,12 +82,11 @@ public class TubeZigZagVFX : MonoBehaviour
                 DOVirtual.DelayedCall(maxLife + extraFadeDelay, () =>
                 {
                     ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-                    // Nếu dùng pooling: disable GO
                     ps.gameObject.SetActive(false);
                 });
             });
 
-
+        return tween;
     }
 
     private static Vector3[] BuildPath(
