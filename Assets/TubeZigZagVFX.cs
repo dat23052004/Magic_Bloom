@@ -1,11 +1,12 @@
 ﻿using DG.Tweening;
 using System;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class TubeZigZagVFX : MonoBehaviour
 {
-    [SerializeField] private ParticleSystem leftPS;
-    [SerializeField] private ParticleSystem rightPS;
+    [SerializeField] private Transform leftRoot;
+    [SerializeField] private Transform rightRoot;
 
     [SerializeField] private Transform tubeBottom;
     [SerializeField] private Transform tubeTop;
@@ -13,19 +14,21 @@ public class TubeZigZagVFX : MonoBehaviour
     [SerializeField] private int zigCount = 3;
     [SerializeField] private float startSideOffsetX = 1;
     [Range(0f, 1f)]
-    [SerializeField] private float phase = 0.5f;
 
     [SerializeField] private float moveTime = 0.75f;
     [SerializeField] private Ease moveEase = Ease.OutSine;
 
-    [SerializeField] private float extraFadeDelay = 0.05f;
     [SerializeField] private float delay = 0.1f;
 
     private bool isRightSide = false;
 
-    private Tween _leftMove, _leftDisable;
-    private Tween _rightMove, _rightDisable;
     private Sequence _seq;
+
+    private void Awake()
+    {
+        if(leftRoot) leftRoot.gameObject.SetActive(false);
+        if(rightRoot) rightRoot.gameObject.SetActive(false);
+    }
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -36,7 +39,7 @@ public class TubeZigZagVFX : MonoBehaviour
 
     public void Play()
     {
-        if (!leftPS || !rightPS || !tubeBottom || !tubeTop) return;
+        if (!leftRoot || !rightRoot || !tubeBottom || !tubeTop) return;
 
         Vector3 bottomPos = tubeBottom.position;
         Vector3 topPos = tubeTop.position;
@@ -48,47 +51,32 @@ public class TubeZigZagVFX : MonoBehaviour
 
         _seq?.Kill();
         _seq = DOTween.Sequence();
-        _seq.Append(PlayParticleAlongPath(leftPS, leftPath, moveTime, ref _leftMove, ref _leftDisable));
-        _seq.Insert(delay, PlayParticleAlongPath(rightPS, rightPath, moveTime-delay, ref _rightMove, ref _rightDisable));
+
+        _seq.Insert(0f, MoveRoot(leftRoot, leftPath, moveTime));
+        _seq.Insert(delay, MoveRoot(rightRoot, rightPath, Mathf.Max(0.01f, moveTime - delay)));
+
         _seq.Play();
-
     }
 
-    private Tween PlayParticleAlongPath(ParticleSystem ps, Vector3[] path, float moveTime, ref Tween moveTween, ref Tween disableTween)
+    private Tween MoveRoot(Transform root, Vector3[] path, float time)
     {
-        if (!ps.gameObject.activeInHierarchy) ps.gameObject.SetActive(true);
+        root.DOKill();
+        if (!root.gameObject.activeInHierarchy) root.gameObject.SetActive(true);
 
-        moveTween?.Kill();
-        disableTween?.Kill();
-        ps.transform.DOKill();
+        root.position = path[0];
 
-        var emission = ps.emission;
-        emission.enabled = true;
-
-        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        ps.Clear(true);
-        ps.Play(true);
-
-        Transform tr = ps.transform;
-        tr.position = path[0];
-
-        Tween tween = tr.DOPath(path, moveTime, PathType.CatmullRom)
-            .SetEase(moveEase)
-            .OnComplete(() =>
-            {
-                emission.enabled = false;
-
-                float maxLife = GetMaxStartLifetime(ps);
-                DOVirtual.DelayedCall(maxLife + extraFadeDelay, () =>
-                {
-                    ps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-                    ps.gameObject.SetActive(false);
-                });
-            });
-
-        return tween;
+        return root.DOPath(path, time, PathType.CatmullRom)
+                   .SetEase(moveEase)
+                   .OnComplete(()=>
+                   {
+                       DOVirtual.DelayedCall(0.2f, () =>
+                       {
+                           root.gameObject.SetActive(false);
+                       });
+                   });
     }
 
+  
     private static Vector3[] BuildPath(
      Vector3 bottom, Vector3 top, Transform tubeBasis,
      float sideOffset, int zigCount, bool isRightSide)
