@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 826771518850822248}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.26, y: -2.32, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -384,7 +384,7 @@ Transform:
   m_GameObject: {fileID: 3544381378631001183}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.26, y: -2.32, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -404,7 +404,7 @@ GameObject:
   - component: {fileID: 5731433772886204397}
   - component: {fileID: 2428247465610886443}
   m_Layer: 0
-  m_Name: SwirlPS_Left_VFX
+  m_Name: SwirlPS_Right_VFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5199,9 +5199,9 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 143245065
+  m_SortingLayer: 1
+  m_SortingOrder: 5
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -5245,7 +5245,7 @@ GameObject:
   - component: {fileID: 4959618021920383242}
   - component: {fileID: 1856620482775671886}
   m_Layer: 0
-  m_Name: Left_Trail
+  m_Name: Right_Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10878,9 +10878,9 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 143245065
+  m_SortingLayer: 1
+  m_SortingOrder: 5
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -10979,9 +10979,10 @@ MonoBehaviour:
   waterRect: {fileID: 9060907176878244509}
   cap: {fileID: 633243754510537865}
   capEase: 27
-  capMoveDuration: 0.5
-  capFadeInDelay: 0.25
-  capFadeInDuration: 0.2
+  capMoveDuration: 1
+  capFadeInDelay: 0.2
+  capFadeInDuration: 0.5
+  soundCloseDelay: 0.4
   bottomBoost: 0.249
   sortingGroup: {fileID: 1112422384311696354}
 --- !u!114 &3078156941143678405
@@ -11026,10 +11027,8 @@ MonoBehaviour:
   tubeTop: {fileID: 225752806706000051}
   zigCount: 3
   startSideOffsetX: 1.1
-  phase: 0.5
-  moveTime: 1.5
+  moveTime: 1
   moveEase: 3
-  extraFadeDelay: 0.05
   delay: 0.2
 --- !u!1 &7128004657012078823
 GameObject:

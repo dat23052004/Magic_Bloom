@@ -15,10 +15,10 @@ public class TubeZigZagVFX : MonoBehaviour
     [SerializeField] private float startSideOffsetX = 1;
     [Range(0f, 1f)]
 
-    [SerializeField] private float moveTime = 0.75f;
+    [SerializeField] public float moveTime = 0.75f;
     [SerializeField] private Ease moveEase = Ease.OutSine;
 
-    [SerializeField] private float delay = 0.1f;
+    [SerializeField] public float delay = 0.1f;
 
     private bool isRightSide = false;
 
@@ -40,7 +40,7 @@ public class TubeZigZagVFX : MonoBehaviour
     public void Play()
     {
         if (!leftRoot || !rightRoot || !tubeBottom || !tubeTop) return;
-
+        AudioManager.Ins.PlaySFX("Bottle_Full");
         Vector3 bottomPos = tubeBottom.position;
         Vector3 topPos = tubeTop.position;
 
@@ -117,15 +117,6 @@ public class TubeZigZagVFX : MonoBehaviour
         return pts;
     }
 
-
-
-    private static float GetMaxStartLifetime(ParticleSystem p)
-    {
-        var lt = p.main.startLifetime;
-        if (lt.mode == ParticleSystemCurveMode.Constant) return lt.constant;
-        if (lt.mode == ParticleSystemCurveMode.TwoConstants) return lt.constantMax;
-        return Mathf.Max(1f, lt.constantMax);
-    }
 
     void OnDrawGizmos()
     {

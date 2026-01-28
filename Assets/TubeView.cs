@@ -22,6 +22,7 @@ public class TubeView : MonoBehaviour
     [SerializeField] private float capMoveDuration = 0.5f;
     [SerializeField] private float capFadeInDelay = 0.2f; 
     [SerializeField] private float capFadeInDuration = 0.1f;
+    [SerializeField] private float soundCloseDelay = 0.1f;
 
     [Range(0f, 0.5f)]
     [SerializeField] private float bottomBoost = 0.30f;
@@ -269,8 +270,12 @@ public class TubeView : MonoBehaviour
 
             capRender.DOFade(1f, capFadeInDuration).SetDelay(capFadeInDelay).SetEase(Ease.InQuad);
         }
+        DOVirtual.DelayedCall(capMoveDuration * soundCloseDelay, () =>
+        {
+            AudioManager.Ins.PlaySFX("Bottle_Close");
+        });
         cap.DOLocalMove(originalLocalPos, capMoveDuration)
-           .SetEase(capEase);
+           .SetEase(capEase);            
     }
     public void BoostSortingForPour()
     {

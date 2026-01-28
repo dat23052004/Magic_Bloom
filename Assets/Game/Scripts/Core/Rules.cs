@@ -36,7 +36,7 @@ public static class Rules
 
     public static bool IsCompleted(TubeModel tube)
     {
-        if (tube.isEmpty) return true;
+        if (tube.isEmpty) return false;
         if (tube.segments.Count != 1) return false;
         return tube.segments[0].Amount == tube.capacity;
     }

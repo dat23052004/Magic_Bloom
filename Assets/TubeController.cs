@@ -55,6 +55,7 @@ public class TubeController : Singleton<TubeController>
 
     private void Select(TubeView tube)
     {
+        AudioManager.Ins.PlaySFX("Bottle_Up");
         KillTween();
 
         tubeSelected = tube;
@@ -73,6 +74,7 @@ public class TubeController : Singleton<TubeController>
     private void Deselect()
     {
         if (tubeSelected == null) return;
+        AudioManager.Ins.PlaySFX("Bottle_Down");
         tubeSelected.RestoreSortingAfterPour();
         KillTween();
         currentTween = tubeSelected.transform
@@ -87,6 +89,7 @@ public class TubeController : Singleton<TubeController>
 
     private void SwitchSelect(TubeView from, TubeView to)
     {
+        //AudioManager.Ins.PlaySFX("Bottle_Up");
         KillTween();
         locked = true;
 
@@ -99,11 +102,19 @@ public class TubeController : Singleton<TubeController>
         // A đi xuống
         seq.Append(from.transform
             .DOLocalMove(fromBase, liftTime)
+            .OnStart(() =>
+            {
+                AudioManager.Ins.PlaySFX("Bottle_Down");
+            })
             .SetEase(liftEase));
 
         // B đi lên CÙNG LÚC
         seq.Join(to.transform
             .DOLocalMove(toBase + Vector3.up * liftY, liftTime)
+             .OnStart(() =>
+             {
+                 AudioManager.Ins.PlaySFX("Bottle_Up");
+             })
             .SetEase(liftEase));
 
         seq.OnComplete(() =>
@@ -174,24 +185,38 @@ public class TubeController : Singleton<TubeController>
         float backMoveDur = 0.25f;
 
         seq.Append(tube.DORotateQuaternion(liftWorldRot, backRotDur).SetEase(tiltEase));
-        seq.Append(tube.DOMove(liftWorldPos, backMoveDur).SetEase(moveEase));
+        seq.AppendCallback(() =>
+        {
+            if (tubeSelected != null && Rules.IsCompleted(to.model))
+            {
+                var vfx = to.GetComponent<TubeZigZagVFX>();
+                if (vfx != null)
+                {
+                    vfx.Play();
+                    DOVirtual.DelayedCall(vfx.moveTime + 0.1f, () =>
+                    {
+                        to.AnimateCap();
+                    });
+                }
+                else
+                {
+                    to.AnimateCap();
+                }
+            }
+        });
 
+        seq.Append(tube.DOMove(liftWorldPos, backMoveDur).SetEase(moveEase));
         // (8) hạ xuống base (LOCAL)
         seq.Append(tube.DOLocalMove(basePos, liftTime).SetEase(liftEase));
 
         seq.OnComplete(() =>
         {
-            if (tubeSelected != null) 
+            if (tubeSelected != null)
             {
                 tubeSelected.RestoreSortingAfterPour();
-                if (Rules.IsCompleted(to.model))
-                {
-                    to.AnimateCap();
-                }
             }
             tubeSelected = null;
             locked = false;
-           
         });
         currentTween = seq;
     }
