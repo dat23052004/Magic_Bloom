@@ -8,7 +8,7 @@ public class UIManager : Singleton<UIManager>
     public GameObject losePanel;
     public GameObject inGamePanel;
 
-    protected override void Initialize()
+    protected override void OnInit()
     {
         HideAll();
     }

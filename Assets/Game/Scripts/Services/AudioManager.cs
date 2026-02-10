@@ -23,16 +23,12 @@ public class AudioManager : Singleton<AudioManager>
 
     private Dictionary<string, float> sfxCooldowns = new Dictionary<string, float>();
     [SerializeField] private float defaultCooldowns = 0.1f;
-
-    private void Awake()
+    protected override void OnInit()
     {
-        base.Awake();
         InitializeAudioSource();
         BuildDictionaries();
         LoadSettings();
     }
-
-
 
     private void InitializeAudioSource()
     {

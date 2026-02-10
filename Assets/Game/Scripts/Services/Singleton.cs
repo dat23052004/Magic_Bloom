@@ -10,7 +10,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if (m_Instance == null)
             {
-                m_Instance = FindObjectOfType<T>();
+                m_Instance = FindAnyObjectByType<T>();
                 if (m_Instance == null)
                 {
                     GameObject obj = new GameObject(typeof(T).Name);
@@ -21,12 +21,12 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    protected virtual void Awake()
+    protected void Awake()
     {
         if (m_Instance == null)
         {
             m_Instance = this as T;
-            Initialize();
+            OnInit();
         }
         else if (m_Instance != this)
         {
@@ -34,5 +34,5 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    protected virtual void Initialize() { }
+    protected virtual void OnInit() { }
 }

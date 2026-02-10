@@ -20,10 +20,33 @@ public class LevelManager : Singleton<LevelManager>
     new Keyframe(4, 0.55f),
     new Keyframe(5, 0.4f),
     new Keyframe(6, 0.22f)
-);
+);  
     public int CurrentLevel { get; private set; } = 1;
     public List<TubeView> CurrentViews { get; private set; } = new();
     public List<TubeModel> CurrentModels { get; private set; } = new();
+
+    private void Start()
+    {
+        if (levels == null || levels.Count == 0)
+        {
+            LoadLevelsFromResources();
+        }
+    }
+    private void LoadLevelsFromResources()
+    {
+        levels = new List<LevelDataSO>();
+        var loadedLevels = Resources.LoadAll<LevelDataSO>("Levels");
+
+        foreach (var level in loadedLevels)
+        {
+            levels.Add(level);
+        }
+
+        // Sort by level number
+        levels.Sort((a, b) => a.level.CompareTo(b.level));
+
+        Debug.Log($"Loaded {levels.Count} levels from Resources");
+    }
 
     internal void LoadLevel(int levelNumber)
     {
@@ -34,6 +57,17 @@ public class LevelManager : Singleton<LevelManager>
         ClearSpawned();
         CurrentModels.Clear();
         CurrentViews.Clear();
+
+        // Show milestone message
+        if (data.isMilestoneLevel)
+        {
+            Debug.Log($"🎉 MILESTONE LEVEL {levelNumber}!");
+        }
+
+        if (data.isBreatherLevel)
+        {
+            Debug.Log($"😌 Breather Level {levelNumber}");
+        }
 
         for (int i = 0; i < data.tubes.Count; i++)
         {
@@ -55,11 +89,11 @@ public class LevelManager : Singleton<LevelManager>
     {
         var model = new TubeModel(capacity, totalColor);
 
-        for (int i = 0; i < tubeData.segmentsBottomToTop.Count; i++)
+        for (int i = 0; i < tubeData.GetSegments().Count; i++)
         {
-            var seg = tubeData.segmentsBottomToTop[i];
+            var seg = tubeData.GetSegments()[i];
             if (seg.Amount <= 0) continue;
-            model.segments.Add(seg); 
+            model.segments.Add(seg);
         }
         return model;
     }
@@ -71,7 +105,6 @@ public class LevelManager : Singleton<LevelManager>
             Destroy(spawnRoot.GetChild(i).gameObject);
         }
     }
-
 
 
     // Auto layout
@@ -100,12 +133,10 @@ public class LevelManager : Singleton<LevelManager>
         // scale theo hangf rong nhat
         float tubeWidth = EstimateTubeWidth(tubes[0].transform);
 
-
         LayoutRowAutoSpacing(CurrentViews, 0, topCount, topY, spawnRoot.position.x, tubeWidth, availableWidth);
 
         if (bottomCount > 0)
             LayoutRowAutoSpacing(CurrentViews, topCount, bottomCount, bottomY, spawnRoot.position.x, tubeWidth, availableWidth);
-
     }
     private void LayoutRowAutoSpacing(List<TubeView> tubes, int start, int count, float y, float centerX, float tubeWidth, float availableWidth)
     {
@@ -119,7 +150,6 @@ public class LevelManager : Singleton<LevelManager>
 
         float spacingWanted = spacingCurve.Evaluate(count);
 
-
         float step = tubeWidth + spacingWanted;
         float mid = (count - 1) * 0.5f;
 
@@ -130,7 +160,6 @@ public class LevelManager : Singleton<LevelManager>
             t.position = new Vector3(x, y, 0f);
         }
     }
-
 
     private void ComputeRows(int total, out int topRow, out int bottomRow)
     {
