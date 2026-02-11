@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90e06c837e5705749b73c2f2c87b8a35, type: 3}
+  m_Name: Level_001
+  m_EditorClassIdentifier: 
+  level: 1
+  capacity: 6
+  totalColor: 3
+  viewType: 1
+  isBreatherLevel: 0
+  isMilestoneLevel: 0
+  targetMoves: 0
+  totalTransitions: 0
+  topBlockers: 0
+  estMoves: 0
+  tubes:
+  - layers: 020000000200000002000000000000000000000000000000
+  - layers: 000000000000000000000000010000000100000001000000
+  - layers: 020000000200000002000000010000000100000001000000
+  - layers: ffffffffffffffffffffffffffffffffffffffffffffffff
+  - layers: ffffffffffffffffffffffffffffffffffffffffffffffff

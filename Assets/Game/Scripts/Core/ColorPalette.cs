@@ -11,6 +11,10 @@ public static class ColorPalette
         { ColorId.Yellow, Color.yellow },
         { ColorId.Purple, new Color(0.6f, 0.2f, 0.8f) },
         { ColorId.Orange, new Color(1f, 0.5f, 0f) },
+        { ColorId.Pink, new Color(1f, 0.4f, 0.7f) },
+        { ColorId.Cyan, Color.cyan },
+        { ColorId.Lime, new Color(0.6f, 1f, 0.2f) },
+        { ColorId.Brown, new Color(0.55f, 0.27f, 0.07f) }
     };
 
     public static Color GetColor(ColorId colorId)

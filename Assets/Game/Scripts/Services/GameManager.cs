@@ -7,7 +7,7 @@ public class GameManager : Singleton<GameManager>
     [Header("Game States")]
     public GameState currentState;
 
-    private int startLevel = 40;
+    public int startLevel = 1;
     protected override void OnInit()
     {
         StartGame();

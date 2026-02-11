@@ -92,10 +92,8 @@ public class TubeZigZagVFX : MonoBehaviour
         Vector3 side = tubeBasis ? tubeBasis.right : Vector3.right;
         side = Vector3.ProjectOnPlane(side, up).normalized;
 
-        // start lệch trái/phải
         pts[0] = bottom + side * (isRightSide ? sideOffset : -sideOffset);
 
-        // ✅ mẫu "cắt nửa nhịp cuối"
         float denom = zigCount + 0.5f;
 
         for (int i = 1; i <= zigCount; i++)
@@ -105,7 +103,6 @@ public class TubeZigZagVFX : MonoBehaviour
 
             Vector3 center = Vector3.Lerp(bottom, top, t);
 
-            // đổi bên, có tính cả vệt trái/phải để 2 vệt đan xen đúng
             float sign = (i % 2 == 1) ? 1f : -1f;
             if (isRightSide) sign *= -1f;
 

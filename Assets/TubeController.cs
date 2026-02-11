@@ -30,7 +30,6 @@ public class TubeController : Singleton<TubeController>
     private bool locked;
     private Tween currentTween;
     private Sequence seq;
-    
     public void OnTubeClicked(TubeView tube)
     {
         if (locked || tube == null || tube.model == null) return;
@@ -202,6 +201,12 @@ public class TubeController : Singleton<TubeController>
                 {
                     to.AnimateCap();
                 }
+
+                DOVirtual.DelayedCall(3f, () =>
+                {
+                    if (LevelManager.Ins.IsWin())
+                        UIManager.Ins.OnGameStateChanged(GameState.Win);
+                });
             }
         });
 
@@ -219,6 +224,7 @@ public class TubeController : Singleton<TubeController>
             locked = false;
         });
         currentTween = seq;
+        
     }
     private Tween MoveToPourSpot(Transform tube, Transform pour, Transform receive, float upOffset
      , float sideOffset, float angleA, float speed, float approachTiltTime, float minMoveTime)

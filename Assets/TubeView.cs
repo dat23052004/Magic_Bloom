@@ -275,7 +275,7 @@ public class TubeView : MonoBehaviour
             AudioManager.Ins.PlaySFX("Bottle_Close");
         });
         cap.DOLocalMove(originalLocalPos, capMoveDuration)
-           .SetEase(capEase);            
+           .SetEase(capEase);
     }
     public void BoostSortingForPour()
     {

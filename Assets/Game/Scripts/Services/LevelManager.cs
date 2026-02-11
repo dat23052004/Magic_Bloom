@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class LevelManager : Singleton<LevelManager>
@@ -11,7 +12,6 @@ public class LevelManager : Singleton<LevelManager>
 
     [SerializeField] private int maxTopRow = 6;
     [SerializeField] private float rowOffsetWorld = 9f;
-
     [SerializeField]
     private AnimationCurve spacingCurve = new AnimationCurve(
     new Keyframe(1, 0.0f),
@@ -58,17 +58,6 @@ public class LevelManager : Singleton<LevelManager>
         CurrentModels.Clear();
         CurrentViews.Clear();
 
-        // Show milestone message
-        if (data.isMilestoneLevel)
-        {
-            Debug.Log($"🎉 MILESTONE LEVEL {levelNumber}!");
-        }
-
-        if (data.isBreatherLevel)
-        {
-            Debug.Log($"😌 Breather Level {levelNumber}");
-        }
-
         for (int i = 0; i < data.tubes.Count; i++)
         {
             var model = BuildModel(data.capacity,data.totalColor, data.tubes[i]);
@@ -83,7 +72,6 @@ public class LevelManager : Singleton<LevelManager>
 
     public void LoadNextLevel() => LoadLevel(CurrentLevel + 1);
     private LevelDataSO FindLevel(int levelNumber) => levels.Find(l => l.level == levelNumber);
-
 
     private TubeModel BuildModel(int capacity,int totalColor, TubeData tubeData)
     {
@@ -187,5 +175,9 @@ public class LevelManager : Singleton<LevelManager>
         return 1f;
     }
 
+    public bool IsWin()
+    {
+       return CurrentModels.All(t => Rules.IsCompleted(t) || t.isEmpty);
+    }
 
 }
