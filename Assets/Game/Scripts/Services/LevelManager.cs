@@ -50,6 +50,7 @@ public class LevelManager : Singleton<LevelManager>
 
     internal void LoadLevel(int levelNumber)
     {
+        UIManager.Ins.UpdateLevel(levelNumber);
         var data = FindLevel(levelNumber);
         if (data == null) return;
 

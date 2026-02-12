@@ -25,11 +25,14 @@ public class TubeController : Singleton<TubeController>
     [SerializeField] private float pourAngleMin = -60f;       // rót ít
     [SerializeField] private float pourAngleMax = -80f;       // rót nhiều
 
+    [SerializeField] private float winCheckDelay = 3f;
+
     private TubeView tubeSelected;
     private Vector3 selectedBaseLocalPos;
     private bool locked;
     private Tween currentTween;
     private Sequence seq;
+    private Tween winCheckTween;
     public void OnTubeClicked(TubeView tube)
     {
         if (locked || tube == null || tube.model == null) return;
@@ -188,6 +191,7 @@ public class TubeController : Singleton<TubeController>
         {
             if (tubeSelected != null && Rules.IsCompleted(to.model))
             {
+                ComboTracker.Ins.RegisterSuccessfulPour();
                 var vfx = to.GetComponent<TubeZigZagVFX>();
                 if (vfx != null)
                 {
@@ -202,11 +206,16 @@ public class TubeController : Singleton<TubeController>
                     to.AnimateCap();
                 }
 
-                DOVirtual.DelayedCall(3f, () =>
+                if (winCheckTween != null && winCheckTween.IsActive())
                 {
-                    if (LevelManager.Ins.IsWin())
-                        UIManager.Ins.OnGameStateChanged(GameState.Win);
+                    winCheckTween.Kill();
+                }
+
+                winCheckTween = DOVirtual.DelayedCall(winCheckDelay, () =>
+                {
+                    if (LevelManager.Ins.IsWin()) UIManager.Ins?.OnGameStateChanged(GameState.Win);
                 });
+
             }
         });
 
@@ -224,7 +233,7 @@ public class TubeController : Singleton<TubeController>
             locked = false;
         });
         currentTween = seq;
-        
+
     }
     private Tween MoveToPourSpot(Transform tube, Transform pour, Transform receive, float upOffset
      , float sideOffset, float angleA, float speed, float approachTiltTime, float minMoveTime)
@@ -340,6 +349,10 @@ public class TubeController : Singleton<TubeController>
         if (currentTween != null && currentTween.IsActive())
             currentTween.Kill();
         currentTween = null;
+
+        if (winCheckTween != null && winCheckTween.IsActive())
+            winCheckTween.Kill();
+        winCheckTween = null;
     }
 
 }
