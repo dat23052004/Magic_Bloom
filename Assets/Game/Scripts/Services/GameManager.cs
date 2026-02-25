@@ -26,20 +26,7 @@ public class GameManager : Singleton<GameManager>
 
         // Notify UI
         UIManager.Ins.OnGameStateChanged(currentState);
-
-        //// (Optional) lock/unlock gameplay input
-        //switch (currentState)
-        //{
-        //    case GameState.InGame:
-        //        GameplayInput.I?.SetEnable(true);
-        //        break;
-
-        //    case GameState.Menu:
-        //    case GameState.Settings:
-        //    case GameState.Win:
-        //    case GameState.Lose:
-        //        GameplayInput.I?.SetEnable(false);
-        //        break;
-        //}
     }
+
+
 }

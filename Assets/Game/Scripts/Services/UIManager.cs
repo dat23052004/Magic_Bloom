@@ -11,7 +11,8 @@ public class UIManager : Singleton<UIManager>
     private void Start()
     {
         comboTrack = ComboTracker.Ins;           // lấy 1 lần
-        if (comboTrack != null) comboTrack.OnComboChanged += HandleComboChanged;
+        if (comboTrack != null) comboTrack.OnComboChanged += HandleComboChanged;// top
+        SubscribePowerUpEvents(); // bottom
     }
 
     protected override void OnInit()
@@ -24,6 +25,7 @@ public class UIManager : Singleton<UIManager>
         base.OnDestroy();
 
         if (comboTrack != null) comboTrack.OnComboChanged -= HandleComboChanged;
+        UnsubscribePowerUpEvents();
     }
 
     public void OnGameStateChanged(GameState state)
@@ -81,4 +83,45 @@ public class UIManager : Singleton<UIManager>
             AudioManager.Ins?.PlaySFX("ComboHigh");
         }
     }
+
+    #region Event Bottom UI - PowerUp Buttons
+    private void SubscribePowerUpEvents()
+    {
+        var panel = UIManager.Ins?.inGamePanel;
+        if (panel == null) return;
+
+        panel.OnClickUndo += HandleUndo;
+        panel.OnClickAddTube += HandleAddTube;
+        panel.OnClickShuffleTube += HandleShuffleTube;
+    }
+
+    private void UnsubscribePowerUpEvents()
+    {
+        var panel = UIManager.Ins?.inGamePanel;
+        if (panel == null) return;
+
+        panel.OnClickUndo -= HandleUndo;
+        panel.OnClickAddTube -= HandleAddTube;
+        panel.OnClickShuffleTube -= HandleShuffleTube;
+    }
+
+    private void HandleUndo()
+    {
+        if (GameManager.Ins.currentState != GameState.InGame) return;
+        LevelManager.Ins?.PerformUndo();
+    }
+
+    private void HandleAddTube()
+    {
+        if (GameManager.Ins.currentState != GameState.InGame) return;
+        LevelManager.Ins?.AddExtraTube();
+    }
+
+    private void HandleShuffleTube()
+    {
+        if (GameManager.Ins.currentState != GameState.InGame) return;
+        // Bật chế độ chọn tube - gameplay controller sẽ detect click
+        LevelManager.Ins?.ToggleShuffleSelectMode();
+    }
+    #endregion
 }

@@ -19,18 +19,22 @@ public class LevelManager : Singleton<LevelManager>
     new Keyframe(3, 0.7f),
     new Keyframe(4, 0.55f),
     new Keyframe(5, 0.4f),
-    new Keyframe(6, 0.22f)
-);  
+    new Keyframe(6, 0.22f));
+
+    [SerializeField] private int maxExtraTubes = 2;
+
     public int CurrentLevel { get; private set; } = 1;
     public List<TubeView> CurrentViews { get; private set; } = new();
     public List<TubeModel> CurrentModels { get; private set; } = new();
 
+    private int extraTubesUsed = 0;
+    private bool isShuffleSelectMode = false;
+    public bool IsShuffleSelectMode => isShuffleSelectMode;
+    public event Action<bool> OnShuffleSelectModeChanged;
+
     private void Start()
     {
-        if (levels == null || levels.Count == 0)
-        {
-            LoadLevelsFromResources();
-        }
+        if (levels == null || levels.Count == 0) LoadLevelsFromResources();
     }
     private void LoadLevelsFromResources()
     {
@@ -61,7 +65,7 @@ public class LevelManager : Singleton<LevelManager>
 
         for (int i = 0; i < data.tubes.Count; i++)
         {
-            var model = BuildModel(data.capacity,data.totalColor, data.tubes[i]);
+            var model = BuildModel(data.capacity, data.totalColor, data.tubes[i]);
             TubeView view = Instantiate(tuberPrefab, spawnRoot);
             view.Init(model);
             CurrentModels.Add(model);
@@ -74,7 +78,7 @@ public class LevelManager : Singleton<LevelManager>
     public void LoadNextLevel() => LoadLevel(CurrentLevel + 1);
     private LevelDataSO FindLevel(int levelNumber) => levels.Find(l => l.level == levelNumber);
 
-    private TubeModel BuildModel(int capacity,int totalColor, TubeData tubeData)
+    private TubeModel BuildModel(int capacity, int totalColor, TubeData tubeData)
     {
         var model = new TubeModel(capacity, totalColor);
 
@@ -178,7 +182,123 @@ public class LevelManager : Singleton<LevelManager>
 
     public bool IsWin()
     {
-       return CurrentModels.All(t => Rules.IsCompleted(t) || t.isEmpty);
+        return CurrentModels.All(t => Rules.IsCompleted(t) || t.isEmpty);
     }
 
+
+    #region Undo
+    public void RecordMode(int fromIndex, int toIndex, ColorSegment segment)
+    {
+        UndoManager.Ins?.RecordMove(fromIndex, toIndex, segment);
+    }
+
+    // undo 1 bước
+    public bool PerformUndo()
+    {
+        if (UndoManager.Ins == null || !UndoManager.Ins.HasHistory) return false;
+        bool success = UndoManager.Ins.Undo(CurrentModels, CurrentViews);
+        if (success)
+        {
+            AudioManager.Ins?.PlaySFX("Undo");
+            ComboTracker.Ins?.ResetCombo();
+        }
+        return success;
+    }
+    #endregion
+
+    #region Add empty tube
+    public bool CanAddExtraTube() => extraTubesUsed < maxExtraTubes;
+    public bool AddExtraTube()
+    {
+        if (!CanAddExtraTube()) return false;
+        var data = FindLevel(CurrentLevel);
+        if(data == null) return false;
+
+        int capacity = data.capacity;
+        int totalColor = data.totalColor;
+
+        var model = new TubeModel(capacity, totalColor);
+        TubeView view = Instantiate(tuberPrefab, spawnRoot);
+        view.Init(model);
+        CurrentModels.Add(model);
+        CurrentViews.Add(view);
+        extraTubesUsed++;
+
+        ApplyAutoLayout(CurrentViews);
+        AudioManager.Ins?.PlaySFX("AddTube");
+        return true;
+    }
+    #endregion
+
+    #region Shuffle Select Mode
+    // bật tắt chế độ để chọn tube ne
+    public void ToggleShuffleSelectMode()
+    {
+        isShuffleSelectMode = !isShuffleSelectMode;
+        OnShuffleSelectModeChanged?.Invoke(isShuffleSelectMode);
+        Debug.Log($"[PowerUp] Shuffle select mode: {isShuffleSelectMode}");
+    }
+
+    public bool ShuffleTube(int tubeIndex)
+    {
+        if (tubeIndex < 0 || tubeIndex >= CurrentModels.Count) return false;
+
+        var model = CurrentModels[tubeIndex];
+        if (model.isEmpty) return false;
+
+        // Không shuffle tube đã hoàn thành
+        if (Rules.IsCompleted(model)) return false;
+
+        // Thu thập tất cả color units từ segments
+        var allUnits = new List<ColorId>();
+        foreach (var seg in model.segments)
+        {
+            for (int i = 0; i < seg.Amount; i++)
+                allUnits.Add(seg.colorId);
+        }
+
+        if (allUnits.Count <= 1) return false;
+
+        // Fisher-Yates shuffle
+        for (int i = allUnits.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (allUnits[i], allUnits[j]) = (allUnits[j], allUnits[i]);
+        }
+
+        // Rebuild segments từ shuffled units
+        model.segments.Clear();
+        ColorId currentColor = allUnits[0];
+        int count = 1;
+
+        for (int i = 1; i < allUnits.Count; i++)
+        {
+            if (allUnits[i] == currentColor)
+            {
+                count++;
+            }
+            else
+            {
+                model.segments.Add(new ColorSegment { colorId = currentColor, Amount = count });
+                currentColor = allUnits[i];
+                count = 1;
+            }
+        }
+        model.segments.Add(new ColorSegment { colorId = currentColor, Amount = count });
+
+        // Refresh view
+        CurrentViews[tubeIndex].Refresh();
+
+        // Tắt shuffle mode sau khi dùng
+        isShuffleSelectMode = false;
+        OnShuffleSelectModeChanged?.Invoke(false);
+
+        // Clear undo vì state đã thay đổi ngoài pour
+        UndoManager.Ins?.ClearHistory();
+
+        AudioManager.Ins?.PlaySFX("Shuffle");
+        Debug.Log($"[PowerUp] Shuffled tube {tubeIndex}");
+        return true;
+    }
+    #endregion
 }

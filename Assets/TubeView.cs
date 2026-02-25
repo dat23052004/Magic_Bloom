@@ -293,4 +293,10 @@ public class TubeView : MonoBehaviour
         if (receivePoint.position.x >= transform.position.x) return pourPoint_Right;
         return pourPoint_Left;
     }
+
+    internal void Refresh()
+    {
+        EnsureViewCount();
+        BuildSements();
+    }
 }

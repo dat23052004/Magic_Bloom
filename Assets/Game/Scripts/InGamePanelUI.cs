@@ -18,9 +18,18 @@ public class InGamePanelUI : UIPanel
 
     [SerializeField] private Button noAdsButton;
 
+    [Header("Power-Up Buttons")]
+    [SerializeField] private Button undoButton;
+    [SerializeField] private Button addTubeButton;
+    [SerializeField] private Button shuffleTubeButton;
+
     public event Action OnClickSetting;
     public event Action OnClickShop;
     public event Action OnClickNoAds;
+
+    public event Action OnClickUndo;
+    public event Action OnClickAddTube;
+    public event Action OnClickShuffleTube;
 
     private Tween fillTween;
 
@@ -40,6 +49,10 @@ public class InGamePanelUI : UIPanel
         if (settingButton) settingButton.onClick.AddListener(() => OnClickSetting?.Invoke());
         if (shopButton) shopButton.onClick.AddListener(() => OnClickShop?.Invoke());
         if (noAdsButton) noAdsButton.onClick.AddListener(() => OnClickNoAds?.Invoke());
+
+        if (undoButton) undoButton.onClick.AddListener(() => OnClickUndo?.Invoke());
+        if (addTubeButton) addTubeButton.onClick.AddListener(() => OnClickAddTube?.Invoke());
+        if (shuffleTubeButton) shuffleTubeButton.onClick.AddListener(() => OnClickShuffleTube?.Invoke());
     }
 
     public void SetLevel(int level)
@@ -86,11 +99,6 @@ public class InGamePanelUI : UIPanel
                 fillTween = null;
             });
     }
-    public void SetNoAds(bool visible)
-    {
-        // to do - change to payment 
-    }
-
     private void KillFillTween()
     {
         if (fillTween != null && fillTween.IsActive())
@@ -99,5 +107,17 @@ public class InGamePanelUI : UIPanel
             fillTween = null;
         }
     }
+    public void SetNoAds(bool visible)
+    {
+        // to do - change to payment 
+    }
+
+    // Cập nhật trạng thái interactable của undo button
+    public void SetUndoInteractable(bool interactable)
+    {
+        if (undoButton) undoButton.interactable = interactable;
+    }
+
+ 
 
 }

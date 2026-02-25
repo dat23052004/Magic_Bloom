@@ -54,6 +54,12 @@ public class TubeController : Singleton<TubeController>
             SwitchSelect(tubeSelected, tube);
     }
 
+    private int GetTubeIndex(TubeView view)
+    {
+        var views = LevelManager.Ins?.CurrentViews;
+        if (views == null) return -1;
+        return views.IndexOf(view);
+    }
 
     private void Select(TubeView tube)
     {
@@ -128,6 +134,7 @@ public class TubeController : Singleton<TubeController>
 
         currentTween = seq;
     }
+    
 
     private void PourWithArc(TubeView from, TubeView to)
     {
@@ -151,13 +158,15 @@ public class TubeController : Singleton<TubeController>
         Vector3 liftWorldPos = tube.position;
         Quaternion liftWorldRot = tube.rotation;
 
+        ColorSegment topSegBeforePour = default;
+
         // tính thời gian “đổ”
         int amount = 0;
         if (from.model.GetTop(out var topSeg))
         {
             amount = topSeg.Amount;
+            topSegBeforePour = topSeg;
         }
-
 
         float dir = Mathf.Sign(receive.position.x - pour.position.x);
         if (Mathf.Abs(dir) < 0.0001f) dir = 1f;
@@ -174,10 +183,14 @@ public class TubeController : Singleton<TubeController>
 
         int fromTopIndex = from.model.segments.Count - 1;
         int toTopIndex = to.model.segments.Count - 1;
+        
+        // Lấy index TRƯỚC khi pour để record undo
+        int fromIndex = GetTubeIndex(from);
+        int toIndex = GetTubeIndex(to);
 
         float pourDuration = 0.6f; // thời gian đổ cố định cho đẹp
         var t2 = RotateWhileSlidePourToReceiveX_ThenHold(tube, pour, receive, signedAnglePour, pourDuration);
-        var flow = CreatePourFlowTween(from, to, fromTopIndex, toTopIndex, amount, pour, receive, pourDuration);
+        var flow = CreatePourFlowTween(from, to, fromTopIndex, toTopIndex, amount,fromIndex, toIndex, topSegBeforePour, pour, receive, pourDuration);
 
         seq.Append(go);
         seq.Append(t2).Join(flow);
@@ -307,7 +320,7 @@ public class TubeController : Singleton<TubeController>
 
         return tw;
     }
-    private Tween CreatePourFlowTween(TubeView from, TubeView to, int fromTopIndex, int toTopIndex, int amounts, Transform pour, Transform receive, float duration)
+    private Tween CreatePourFlowTween(TubeView from, TubeView to, int fromTopIndex, int toTopIndex, int amounts,int fromIndex, int toIndex, ColorSegment topSegBeforePour,  Transform pour, Transform receive, float duration)
     {
         Tweener tween = null;
 
@@ -315,6 +328,8 @@ public class TubeController : Singleton<TubeController>
             .SetEase(Ease.Linear)
             .OnStart(() =>
             {
+                LevelManager.Ins?.RecordMode(fromIndex, toIndex, topSegBeforePour);
+
                 Rules.Pour(from.model, to.model);
                 from.AnimateTopOnly(fromTopIndex, -amounts, duration);
                 to.AnimateTopOnly(toTopIndex, +amounts, duration);
