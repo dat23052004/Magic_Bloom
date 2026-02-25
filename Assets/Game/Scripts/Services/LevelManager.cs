@@ -15,11 +15,7 @@ public class LevelManager : Singleton<LevelManager>
     [SerializeField]
     private AnimationCurve spacingCurve = new AnimationCurve(
     new Keyframe(1, 0.0f),
-    new Keyframe(2, 0.9f),
-    new Keyframe(3, 0.7f),
-    new Keyframe(4, 0.55f),
-    new Keyframe(5, 0.4f),
-    new Keyframe(6, 0.22f));
+    new Keyframe(2, 0.9f));
 
     [SerializeField] private int maxExtraTubes = 2;
 
@@ -111,20 +107,39 @@ public class LevelManager : Singleton<LevelManager>
         Camera cam = Camera.main;
         float camHelfHeight = cam.orthographicSize;
         float camHelfWidth = camHelfHeight * cam.aspect;
-
-        float left = -camHelfWidth;
-        float right = camHelfWidth;
-        float availableWidth = right - left;
+        float availableWidth = camHelfWidth * 2f;
 
         ComputeRows(totalTubes, out int topCount, out int bottomCount);
         bool twoRows = bottomCount > 0;
+        foreach (var tube in tubes)
+            tube.transform.localScale = Vector3.one;
+        // ── Scale khi > 12 ──
+        float scale = 1f;
+        if (totalTubes > Constant.MAX_TUBES_NO_SCALE)
+        {
+            // Lấy tubeWidth ở scale=1 để tính
+            float originalWidth = EstimateTubeWidth(tubes[0].transform);
+            int maxRowCount = Mathf.Max(topCount, bottomCount);
+            float spacingAtRow = spacingCurve.Evaluate(Mathf.Min(maxRowCount, 7));
+            float neededWidth = maxRowCount * originalWidth + (maxRowCount - 1) * spacingAtRow;
+            
+            // Fit vào 90% màn hình (giữ padding 2 bên)
+            float usableWidth = availableWidth * 0.9f;
+            if (neededWidth > usableWidth) scale = usableWidth / neededWidth;
 
-        float twoRowOffset = rowOffsetWorld * 0.5f;
+            scale = Mathf.Clamp(scale, 0.55f, 1f);
+            Debug.Log(scale);
+        }
+
+        // Apply scale
+        foreach (var tube in tubes)
+            tube.transform.localScale = Vector3.one * scale;
+
+        float tubeWidth = EstimateTubeWidth(tubes[0].transform); // bounds đã tính scale
+
+        float twoRowOffset = rowOffsetWorld * 0.5f * scale;
         float topY = twoRows ? spawnRoot.position.y + twoRowOffset : spawnRoot.position.y;
         float bottomY = -spawnRoot.position.y - twoRowOffset;
-
-        // scale theo hangf rong nhat
-        float tubeWidth = EstimateTubeWidth(tubes[0].transform);
 
         LayoutRowAutoSpacing(CurrentViews, 0, topCount, topY, spawnRoot.position.x, tubeWidth, availableWidth);
 
@@ -164,7 +179,7 @@ public class LevelManager : Singleton<LevelManager>
         }
 
         topRow = Mathf.CeilToInt(total / 2f);
-        topRow = Mathf.Min(topRow, 6);
+        topRow = Mathf.Min(topRow, Constant.MAX_PER_ROW);
         bottomRow = total - topRow;
     }
 
@@ -212,7 +227,7 @@ public class LevelManager : Singleton<LevelManager>
     {
         if (!CanAddExtraTube()) return false;
         var data = FindLevel(CurrentLevel);
-        if(data == null) return false;
+        if (data == null) return false;
 
         int capacity = data.capacity;
         int totalColor = data.totalColor;
