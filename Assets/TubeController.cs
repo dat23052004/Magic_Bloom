@@ -64,6 +64,11 @@ public class TubeController : Singleton<TubeController>
     private void Select(TubeView tube)
     {
         AudioManager.Ins.PlaySFX("Bottle_Up");
+        if (LevelManager.Ins.IsShuffleSelectMode)
+        {
+            LevelManager.Ins.ShuffleTube(GetTubeIndex(tube));
+            return; // không pour
+        }
         KillTween();
 
         tubeSelected = tube;

@@ -260,59 +260,38 @@ public class LevelManager : Singleton<LevelManager>
 
         var model = CurrentModels[tubeIndex];
         if (model.isEmpty) return false;
-
-        // Không shuffle tube đã hoàn thành
         if (Rules.IsCompleted(model)) return false;
+        if (model.segments.Count <= 1) return false;
 
-        // Thu thập tất cả color units từ segments
-        var allUnits = new List<ColorId>();
-        foreach (var seg in model.segments)
-        {
-            for (int i = 0; i < seg.Amount; i++)
-                allUnits.Add(seg.colorId);
-        }
-
-        if (allUnits.Count <= 1) return false;
-
-        // Fisher-Yates shuffle
-        for (int i = allUnits.Count - 1; i > 0; i--)
+        // Fisher-Yates shuffle trên chính list segments
+        var segs = model.segments;
+        for (int i = segs.Count - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);
-            (allUnits[i], allUnits[j]) = (allUnits[j], allUnits[i]);
+            (segs[i], segs[j]) = (segs[j], segs[i]);
         }
 
-        // Rebuild segments từ shuffled units
-        model.segments.Clear();
-        ColorId currentColor = allUnits[0];
-        int count = 1;
-
-        for (int i = 1; i < allUnits.Count; i++)
+        // Merge segments liền kề cùng màu (edge case sau shuffle)
+        for (int i = segs.Count - 1; i > 0; i--)
         {
-            if (allUnits[i] == currentColor)
+            if (segs[i].colorId == segs[i - 1].colorId)
             {
-                count++;
-            }
-            else
-            {
-                model.segments.Add(new ColorSegment { colorId = currentColor, Amount = count });
-                currentColor = allUnits[i];
-                count = 1;
+                segs[i - 1] = new ColorSegment
+                {
+                    colorId = segs[i - 1].colorId,
+                    Amount = segs[i - 1].Amount + segs[i].Amount
+                };
+                segs.RemoveAt(i);
             }
         }
-        model.segments.Add(new ColorSegment { colorId = currentColor, Amount = count });
 
-        // Refresh view
         CurrentViews[tubeIndex].Refresh();
 
-        // Tắt shuffle mode sau khi dùng
         isShuffleSelectMode = false;
         OnShuffleSelectModeChanged?.Invoke(false);
 
-        // Clear undo vì state đã thay đổi ngoài pour
         UndoManager.Ins?.ClearHistory();
-
         AudioManager.Ins?.PlaySFX("Shuffle");
-        Debug.Log($"[PowerUp] Shuffled tube {tubeIndex}");
         return true;
     }
     #endregion
