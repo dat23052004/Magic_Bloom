@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 4075eb838a1a1494f9283f3110b5f6dd
+guid: 474db721fcb1f2243a245b2430249f83
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1224698763785792138
-    second: Pbg_3_0
+      213: -8777288244226355224
+    second: ChatGPT Image Feb 25, 2026, 11_42_32 PM_0
+  - first:
+      213: -8710435828251913299
+    second: ChatGPT Image Feb 25, 2026, 11_42_32 PM_1
+  - first:
+      213: -260200095854701815
+    second: ChatGPT Image Feb 25, 2026, 11_42_32 PM_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +57,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 200
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -110,7 +116,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: tvOS
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -135,40 +141,71 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Pbg_3_0
+      name: ChatGPT Image Feb 25, 2026, 11_42_32 PM_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 233
-        height: 233
+        x: 36
+        y: 270
+        width: 450
+        height: 450
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 67510bb86fef00fe0800000000000000
-      internalID: -1224698763785792138
+      spriteID: 8ef0daf88dec03680800000000000000
+      internalID: -8777288244226355224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChatGPT Image Feb 25, 2026, 11_42_32 PM_1
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 270
+        width: 450
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da3953a93c05e1780800000000000000
+      internalID: -8710435828251913299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChatGPT Image Feb 25, 2026, 11_42_32 PM_2
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 270
+        width: 450
+        height: 450
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 903de043465936cf0800000000000000
+      internalID: -260200095854701815
       vertices: []
       indices: 
       edges: []
@@ -177,7 +214,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 7b7a71b8e2c7afe4093ae9b976537890
     internalID: 0
     vertices: []
     indices: 
@@ -187,7 +224,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Pbg_3_0: -1224698763785792138
+      ChatGPT Image Feb 25, 2026, 11_42_32 PM_0: -8777288244226355224
+      ChatGPT Image Feb 25, 2026, 11_42_32 PM_1: -8710435828251913299
+      ChatGPT Image Feb 25, 2026, 11_42_32 PM_2: -260200095854701815
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -90,9 +90,8 @@ public class UIManager : Singleton<UIManager>
         var panel = UIManager.Ins?.inGamePanel;
         if (panel == null) return;
 
-        panel.OnClickUndo += HandleUndo;
-        panel.OnClickAddTube += HandleAddTube;
-        panel.OnClickShuffleTube += HandleShuffleTube;
+        panel.OnPowerUpUse += HandlePowerUpUse;
+        panel.OnPowerUpEmpty += HandlePowerUpEmpty;
     }
 
     private void UnsubscribePowerUpEvents()
@@ -100,28 +99,35 @@ public class UIManager : Singleton<UIManager>
         var panel = UIManager.Ins?.inGamePanel;
         if (panel == null) return;
 
-        panel.OnClickUndo -= HandleUndo;
-        panel.OnClickAddTube -= HandleAddTube;
-        panel.OnClickShuffleTube -= HandleShuffleTube;
+        panel.OnPowerUpUse -= HandlePowerUpUse;
+        panel.OnPowerUpEmpty -= HandlePowerUpEmpty;
     }
 
-    private void HandleUndo()
+    private void HandlePowerUpUse(ItemType itemType)
     {
-        if (GameManager.Ins.currentState != GameState.InGame) return;
-        LevelManager.Ins?.PerformUndo();
+        if(GameManager.Ins.currentState != GameState.InGame) return; // Chỉ xử lý khi đang trong game
+        bool consumed = InventoryService.Ins.UseItem(itemType);
+        if (!consumed) return;
+        switch (itemType)
+        {
+            case ItemType.Undo:
+                LevelManager.Ins?.PerformUndo();
+                break;
+
+            case ItemType.AddTube:
+                LevelManager.Ins?.AddExtraTube();
+                break;
+
+            case ItemType.ShuffleTube:
+                LevelManager.Ins?.ToggleShuffleSelectMode();
+                break;
+        }
     }
 
-    private void HandleAddTube()
+    private void HandlePowerUpEmpty(ItemType type)
     {
-        if (GameManager.Ins.currentState != GameState.InGame) return;
-        LevelManager.Ins?.AddExtraTube();
-    }
-
-    private void HandleShuffleTube()
-    {
-        if (GameManager.Ins.currentState != GameState.InGame) return;
-        // Bật chế độ chọn tube - gameplay controller sẽ detect click
-        LevelManager.Ins?.ToggleShuffleSelectMode();
+        // TODO: Mở shop / rewarded ads
+        Debug.Log($"[PowerUp] {type} hết! Mở shop/ads...");
     }
     #endregion
 }

@@ -19,17 +19,17 @@ public class InGamePanelUI : UIPanel
     [SerializeField] private Button noAdsButton;
 
     [Header("Power-Up Buttons")]
-    [SerializeField] private Button undoButton;
-    [SerializeField] private Button addTubeButton;
-    [SerializeField] private Button shuffleTubeButton;
+    [SerializeField] private PowerUpButton undoButton;
+    [SerializeField] private PowerUpButton addTubeButton;
+    [SerializeField] private PowerUpButton shuffleTubeButton;
+
+
+    public event Action<ItemType> OnPowerUpUse; // khi con item
+    public event Action<ItemType> OnPowerUpEmpty; // hki het item mo shop
 
     public event Action OnClickSetting;
     public event Action OnClickShop;
     public event Action OnClickNoAds;
-
-    public event Action OnClickUndo;
-    public event Action OnClickAddTube;
-    public event Action OnClickShuffleTube;
 
     private Tween fillTween;
 
@@ -50,11 +50,21 @@ public class InGamePanelUI : UIPanel
         if (shopButton) shopButton.onClick.AddListener(() => OnClickShop?.Invoke());
         if (noAdsButton) noAdsButton.onClick.AddListener(() => OnClickNoAds?.Invoke());
 
-        if (undoButton) undoButton.onClick.AddListener(() => OnClickUndo?.Invoke());
-        if (addTubeButton) addTubeButton.onClick.AddListener(() => OnClickAddTube?.Invoke());
-        if (shuffleTubeButton) shuffleTubeButton.onClick.AddListener(() => OnClickShuffleTube?.Invoke());
+        if (undoButton) undoButton.OnClicked += () => HandlePowerUpClick(ItemType.Undo);
+        if (addTubeButton) addTubeButton.OnClicked += () => HandlePowerUpClick(ItemType.AddTube);
+        if (shuffleTubeButton) shuffleTubeButton.OnClicked += () => HandlePowerUpClick(ItemType.ShuffleTube);
     }
-
+    private void HandlePowerUpClick(ItemType type)
+    {
+        if (InventoryService.Ins != null && InventoryService.Ins.HasItem(type))
+        {
+            OnPowerUpUse?.Invoke(type);
+        }
+        else
+        {
+            OnPowerUpEmpty?.Invoke(type);
+        }
+    }
     public void SetLevel(int level)
     {
         if (levelText) levelText.text = $"Level {level.ToString()}";
@@ -111,13 +121,5 @@ public class InGamePanelUI : UIPanel
     {
         // to do - change to payment 
     }
-
-    // Cập nhật trạng thái interactable của undo button
-    public void SetUndoInteractable(bool interactable)
-    {
-        if (undoButton) undoButton.interactable = interactable;
-    }
-
- 
 
 }

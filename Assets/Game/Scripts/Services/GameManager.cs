@@ -27,6 +27,4 @@ public class GameManager : Singleton<GameManager>
         // Notify UI
         UIManager.Ins.OnGameStateChanged(currentState);
     }
-
-
 }
