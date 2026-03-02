@@ -122,4 +122,8 @@ public class InGamePanelUI : UIPanel
         // to do - change to payment 
     }
 
+    public void SetSettingButtonVisible(bool visible)
+    {
+        if (settingButton) settingButton.gameObject.SetActive(visible);
+    }
 }

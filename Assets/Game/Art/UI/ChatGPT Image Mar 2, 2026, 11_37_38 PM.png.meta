@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 52e08b93490e79e4c9c1554aad0c18de
+guid: adcf01f810292f447a69fd0cbb1a3404
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1082735696284662366
-    second: ChatGPT Image Feb 26, 2026, 01_41_46 AM_0
-  - first:
-      213: -3146129841864069468
-    second: ChatGPT Image Feb 26, 2026, 01_41_46 AM_1
+      213: 162250265713266070
+    second: ChatGPT Image Mar 2, 2026, 11_37_38 PM_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -142,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ChatGPT Image Feb 26, 2026, 01_41_46 AM_0
+      name: ChatGPT Image Mar 2, 2026, 11_37_38 PM_0
       rect:
         serializedVersion: 2
-        x: 3
+        x: 0
         y: 0
-        width: 1019
-        height: 1019
+        width: 1024
+        height: 1536
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -157,30 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e5abea21166a60f00800000000000000
-      internalID: 1082735696284662366
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ChatGPT Image Feb 26, 2026, 01_41_46 AM_1
-      rect:
-        serializedVersion: 2
-        x: 540
-        y: 140
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4aeaf66e393b654d0800000000000000
-      internalID: -3146129841864069468
+      spriteID: 69d4d8cc1cd604200800000000000000
+      internalID: 162250265713266070
       vertices: []
       indices: 
       edges: []
@@ -199,8 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ChatGPT Image Feb 26, 2026, 01_41_46 AM_0: 1082735696284662366
-      ChatGPT Image Feb 26, 2026, 01_41_46 AM_1: -3146129841864069468
+      ChatGPT Image Mar 2, 2026, 11_37_38 PM_0: 162250265713266070
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

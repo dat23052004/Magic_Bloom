@@ -26,7 +26,6 @@ public class PowerUpButton : MonoBehaviour
         RefreshUI();
     }
 
-
     private void OnDisable()
     {
         if (InventoryService.Ins != null) InventoryService.Ins.OnItemChanged -= HandleItemChanged;

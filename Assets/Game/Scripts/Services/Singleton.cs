@@ -4,7 +4,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T m_Instance;
     private static bool isShuttingDown = false;
-
+    public static bool IsShuttingDown => isShuttingDown;
     public static T Ins
     {
         get
@@ -12,7 +12,6 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
             // ✅ Tránh tạo instance mới khi game đang tắt
             if (isShuttingDown)
             {
-                Debug.LogWarning($"[Singleton] {typeof(T).Name} already destroyed. Returning null.");
                 return null;
             }
 
@@ -22,6 +21,8 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
                 if (m_Instance == null)
                 {
+                    // Không tạo mới nếu đang quit
+                    if (!Application.isPlaying) return null;
                     GameObject obj = new GameObject(typeof(T).Name);
                     m_Instance = obj.AddComponent<T>();
                 }
@@ -33,6 +34,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void Awake()
     {
+        isShuttingDown = false;
         if (m_Instance == null)
         {
             m_Instance = this as T;
