@@ -29,7 +29,7 @@ public class SettingPanelUI : UIPanel
 
     [Header("Links")]
     [SerializeField] private Button privacyPolicyButton;
-    [SerializeField] private string privacyPolicyURL = "https://www.example.com/privacy-policy";
+    [SerializeField] private string privacyPolicyURL = "https://sites.google.com/view/magic-bloom-policy";
 
     public event Action OnClose;
     public event Action OnReplay;
@@ -48,7 +48,7 @@ public class SettingPanelUI : UIPanel
         if (replayButton) replayButton.onClick.AddListener(() => OnReplay?.Invoke());
         if(rateUsButton) rateUsButton.onClick.AddListener(OpenRateUs);
         if(restorePurchaseButton) restorePurchaseButton.onClick.AddListener(RestorePurchase);
-        if (privacyPolicyButton) privacyPolicyButton.onClick.AddListener(() => Application.OpenURL(privacyPolicyURL));
+        if (privacyPolicyButton) privacyPolicyButton.onClick.AddListener(OpenPrivacyPolicy);
     }
 
     public override void Show()
@@ -87,7 +87,7 @@ public class SettingPanelUI : UIPanel
         hapticEnabled = !hapticEnabled;
         PlayerPrefs.SetInt("HapticEnabled", hapticEnabled ? 1:0);
         PlayerPrefs.Save();
-        UpdateToggleVisual(musicImage, hapticEnabled);
+        UpdateToggleVisual(hapticImage, hapticEnabled);
     }
 
     private void RefreshToggles()
@@ -111,10 +111,9 @@ public class SettingPanelUI : UIPanel
     private void OpenRateUs()
     {
 #if UNITY_ANDROID
-        Application.OpenURL("market://details?id=" + Application.identifier);
+Application.OpenURL("https://play.google.com/store/apps/details?id=" + Application.identifier);
 #elif UNITY_IOS
-        // TODO: thay bằng Apple ID thực
-        Application.OpenURL("itms-apps://itunes.apple.com/app/idYOUR_APP_ID");
+Application.OpenURL("itms-apps://itunes.apple.com/app/idYOUR_APP_ID");
 #endif
     }
 
@@ -123,5 +122,9 @@ public class SettingPanelUI : UIPanel
         // TODO: Gọi IAP restore
         Debug.Log("[Setting] Restore Purchase");
     }
-
+    private void OpenPrivacyPolicy()
+    {
+        if (!string.IsNullOrEmpty(privacyPolicyURL))
+            Application.OpenURL(privacyPolicyURL);
+    }
 }

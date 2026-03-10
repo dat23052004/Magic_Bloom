@@ -8,4 +8,7 @@
     public const string ITEM_PREFIX = "Item_";
     public const int DEFAULT_COUNT = 100;
 
+
+    // score in level 
+    public const int BASE_STARS = 5;
 }

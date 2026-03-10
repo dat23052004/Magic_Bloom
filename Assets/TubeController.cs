@@ -210,6 +210,7 @@ public class TubeController : Singleton<TubeController>
             if (tubeSelected != null && Rules.IsCompleted(to.model))
             {
                 ComboTracker.Ins.RegisterSuccessfulPour();
+                ScoreManager.Ins?.OnTubeCompleted();
                 var vfx = to.GetComponent<TubeZigZagVFX>();
                 if (vfx != null)
                 {

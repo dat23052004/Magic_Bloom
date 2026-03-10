@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum GameState { Menu, InGame, Win, Lose }
+public enum GameState { Shop, InGame, Win, Lose }
 
 public class GameManager : Singleton<GameManager>
 {

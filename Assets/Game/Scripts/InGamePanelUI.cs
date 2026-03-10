@@ -16,13 +16,14 @@ public class InGamePanelUI : UIPanel
     [SerializeField] private TMP_Text comboText;
     [SerializeField] private Image comboFillImage;
 
+    [SerializeField] private TMP_Text scoreText;
+
     [SerializeField] private Button noAdsButton;
 
     [Header("Power-Up Buttons")]
     [SerializeField] private PowerUpButton undoButton;
     [SerializeField] private PowerUpButton addTubeButton;
     [SerializeField] private PowerUpButton shuffleTubeButton;
-
 
     public event Action<ItemType> OnPowerUpUse; // khi con item
     public event Action<ItemType> OnPowerUpEmpty; // hki het item mo shop
@@ -40,8 +41,14 @@ public class InGamePanelUI : UIPanel
 
     private void OnEnable()
     {
-        // Khi panel bật lên, bạn có thể refresh dữ liệu nếu cần
-        // RefreshAll();
+        if (ScoreManager.Ins != null) ScoreManager.Ins.OnScoreChanged += UpdateScore;
+        //UpdateScore(ScoreManager.Ins != null ? ScoreManager.Ins.TotalStars : 0);
+    }
+
+    private void OnDisable()
+    {
+
+        if (ScoreManager.Ins != null) ScoreManager.Ins.OnScoreChanged -= UpdateScore;
     }
 
     private void HookButtons()
@@ -125,5 +132,10 @@ public class InGamePanelUI : UIPanel
     public void SetSettingButtonVisible(bool visible)
     {
         if (settingButton) settingButton.gameObject.SetActive(visible);
+    }
+
+    private void UpdateScore(int stars)
+    {
+        if (scoreText) scoreText.text = stars.ToString();
     }
 }

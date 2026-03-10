@@ -51,6 +51,8 @@ public class LevelManager : Singleton<LevelManager>
     internal void LoadLevel(int levelNumber)
     {
         UIManager.Ins.UpdateLevel(levelNumber);
+        UndoManager.Ins?.ClearHistory();
+        ScoreManager.Ins?.ResetScore();
         var data = FindLevel(levelNumber);
         if (data == null) return;
 

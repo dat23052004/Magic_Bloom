@@ -2,7 +2,7 @@
 
 public class UIManager : Singleton<UIManager>
 {
-    public MenuPanelUI menuPanel;
+    public ShopPanelUI shopPanel;
     public SettingPanelUI settingPanel;
     public WinPanelUI winPanel;
     public LosePanelUI losePanel;
@@ -46,14 +46,14 @@ public class UIManager : Singleton<UIManager>
     public void OnGameStateChanged(GameState state)
     {
         HideAll();
-        if (state == GameState.Menu || state == GameState.Win || state == GameState.Lose)
+        if (state == GameState.Shop || state == GameState.Win || state == GameState.Lose)
         {
             ComboTracker.Ins?.ResetCombo();
         }
         switch (state)
         {
-            case GameState.Menu:
-                menuPanel.Show();
+            case GameState.Shop:
+                shopPanel.Show();
                 break;
 
             case GameState.InGame:
@@ -72,7 +72,7 @@ public class UIManager : Singleton<UIManager>
 
     private void HideAll()
     {
-        menuPanel.Hide();
+        shopPanel.Hide();
         inGamePanel.Hide();
         settingPanel.Hide();
         winPanel.Hide();
@@ -160,5 +160,12 @@ public class UIManager : Singleton<UIManager>
         CloseSettingOverlay();
         LevelManager.Ins?.LoadLevel(LevelManager.Ins.CurrentLevel);
     }
+
+    private void HandleRateUs()
+    {
+        CloseSettingOverlay();
+
+    }
+
     #endregion
 }
