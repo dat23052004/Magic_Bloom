@@ -15,12 +15,17 @@ public class UIManager : Singleton<UIManager>
         SubscribePowerUpEvents(); // bottom
 
         // Subscribe setting events
-        if (inGamePanel != null) inGamePanel.OnClickSetting += OpenSettingOverlay;
+        if (inGamePanel != null)
+        {
+            inGamePanel.OnClickSetting += OpenSettingOverlay;
+            inGamePanel.OnClickShop += OpenShop;
+        }
         if (settingPanel != null)
         {
             settingPanel.OnClose += CloseSettingOverlay;
             settingPanel.OnReplay += HandleReplay;
         }
+        if (shopPanel != null) shopPanel.OnCloseShop += CloseShop;
     }
 
     protected override void OnInit()
@@ -33,13 +38,17 @@ public class UIManager : Singleton<UIManager>
         if (comboTrack != null) comboTrack.OnComboChanged -= HandleComboChanged;
         UnsubscribePowerUpEvents();
 
-        if (inGamePanel != null) inGamePanel.OnClickSetting -= OpenSettingOverlay;
+        if (inGamePanel != null)
+        {
+            inGamePanel.OnClickSetting -= OpenSettingOverlay;
+            inGamePanel.OnClickShop -= OpenShop;
+        }
         if (settingPanel != null)
         {
             settingPanel.OnClose -= CloseSettingOverlay;
             settingPanel.OnReplay -= HandleReplay;
         }
-
+        if (shopPanel != null) shopPanel.OnCloseShop -= CloseShop;
         base.OnDestroy();
     }
 
@@ -161,11 +170,19 @@ public class UIManager : Singleton<UIManager>
         LevelManager.Ins?.LoadLevel(LevelManager.Ins.CurrentLevel);
     }
 
-    private void HandleRateUs()
-    {
-        CloseSettingOverlay();
+    #endregion
 
+    #region Shop
+    private void OpenShop()
+    {
+        OnGameStateChanged(GameState.Shop);
+        shopPanel.Show();
     }
 
+    private void CloseShop()
+    {
+        OnGameStateChanged(GameState.InGame);
+        shopPanel.Hide();
+    }
     #endregion
 }

@@ -47,15 +47,15 @@ public class ShopPanelUI : UIPanel
         RefreshCoins();
         SwitchTab(ShopTab.Packages);
 
-        //if (ShopService.Ins != null)
-        //    ShopService.Ins.OnCoinsChanged += HandleCoinsChanged;
+        if (ShopService.Ins != null)
+            ShopService.Ins.OnCoinsChanged += HandleCoinsChanged;
     }
 
  
     public override void Hide()
     {
-        //if (ShopService.Ins != null)
-        //    ShopService.Ins.OnCoinsChanged -= HandleCoinsChanged;
+        if (ShopService.Ins != null)
+            ShopService.Ins.OnCoinsChanged -= HandleCoinsChanged;
         base.Hide();
     }
     private void SwitchTab(ShopTab packages)
@@ -66,7 +66,7 @@ public class ShopPanelUI : UIPanel
     {
         if(coinText && ShopService.Ins != null)
         {
-            //coinText.text = ShopService.Ins.Coins.ToString();
+            coinText.text = ShopService.Ins.Coins.ToString();
         }
     }
     private void HandleCoinsChanged(int newAmount)
