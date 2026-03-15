@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8f95ed0e80f2d6f489660b520dbcb7d2
+guid: ea6d9046b60a8fe48a3977b0c72ca8a0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3216277658935809147
-    second: btn_green_0
+      213: -5777601785407309877
+    second: Gemini_Generated_Image_ubns49ubns49ubns-Photoroom_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -110,7 +110,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: tvOS
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -135,30 +135,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: btn_green_0
+      name: Gemini_Generated_Image_ubns49ubns49ubns-Photoroom_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 51
         y: 0
-        width: 461
-        height: 196
+        width: 1203
+        height: 244
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -167,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 58b2b10828c7d53d0800000000000000
-      internalID: -3216277658935809147
+      spriteID: bc7722789c5d1dfa0800000000000000
+      internalID: -5777601785407309877
       vertices: []
       indices: 
       edges: []
@@ -187,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      btn_green_0: -3216277658935809147
+      Gemini_Generated_Image_ubns49ubns49ubns-Photoroom_0: -5777601785407309877
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
