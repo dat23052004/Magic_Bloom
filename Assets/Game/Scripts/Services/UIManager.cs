@@ -26,6 +26,11 @@ public class UIManager : Singleton<UIManager>
             settingPanel.OnReplay += HandleReplay;
         }
         if (shopPanel != null) shopPanel.OnCloseShop += CloseShop;
+        if (winPanel != null)
+        {
+            winPanel.OnClaim += HandleWinClaim;
+            winPanel.OnWatchAd += HandleWinWatchAd;
+        }
     }
 
     protected override void OnInit()
@@ -49,6 +54,11 @@ public class UIManager : Singleton<UIManager>
             settingPanel.OnReplay -= HandleReplay;
         }
         if (shopPanel != null) shopPanel.OnCloseShop -= CloseShop;
+        if (winPanel != null)
+        {
+            winPanel.OnClaim -= HandleWinClaim;
+            winPanel.OnWatchAd -= HandleWinWatchAd;
+        }
         base.OnDestroy();
     }
 
@@ -70,13 +80,41 @@ public class UIManager : Singleton<UIManager>
                 break;
 
             case GameState.Win:
-                winPanel.Show();
+                HandleWin();
                 break;
 
             case GameState.Lose:
                 losePanel.Show();
                 break;
         }
+    }
+
+    private void HandleWin()
+    {
+        int level = LevelManager.Ins != null ? LevelManager.Ins.CurrentLevel : 1;
+
+        // Tính star rating từ ScoreManager
+        int totalColorTubes = 0;
+        if (LevelManager.Ins != null)
+            totalColorTubes = LevelManager.Ins.CurrentModels.FindAll(t => !t.isEmpty).Count;
+
+        int starRating = ScoreManager.Ins != null
+            ? ScoreManager.Ins.GetStarRating(totalColorTubes)
+            : 1;
+
+        // Tính coin reward (chưa cộng — chờ player bấm Claim hoặc Watch Ad)
+        int coinReward = starRating switch
+        {
+            3 => Constant.COIN_REWARD_3_STAR * level,
+            2 => Constant.COIN_REWARD_2_STAR * level,
+            _ => Constant.COIN_REWARD_1_STAR * level
+        };
+
+        // Lưu lại để cộng khi player bấm Claim / Watch Ad
+        pendingCoinReward = coinReward;
+
+        // Hiển thị WinPanel với kết quả
+        winPanel.ShowResult(level, starRating, coinReward);
     }
 
     private void HideAll()
@@ -170,6 +208,31 @@ public class UIManager : Singleton<UIManager>
         LevelManager.Ins?.LoadLevel(LevelManager.Ins.CurrentLevel);
     }
 
+    #endregion
+
+    #region Win
+    private int pendingCoinReward;
+
+    private void HandleWinClaim()
+    {
+        // Nhận coin gốc
+        ShopService.Ins?.AddCoins(pendingCoinReward);
+        GoNextLevel();
+    }
+
+    private void HandleWinWatchAd(int multiplier)
+    {
+        // Nhận coin × multiplier (sau khi xem ads xong)
+        int total = pendingCoinReward * multiplier;
+        ShopService.Ins?.AddCoins(total);
+        GoNextLevel();
+    }
+
+    private void GoNextLevel()
+    {
+        OnGameStateChanged(GameState.InGame);
+        LevelManager.Ins?.LoadNextLevel();
+    }
     #endregion
 
     #region Shop

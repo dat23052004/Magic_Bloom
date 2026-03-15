@@ -24,6 +24,12 @@ public class ShopService : Singleton<ShopService>
         EquippedBg = ShopSaveService.GetEquippedBg();
     }
 
+    public void ReloadCoins()
+    {
+        coins = ShopSaveService.LoadCoins();
+        OnCoinsChanged?.Invoke(coins);
+    }
+
     //  COINS
     public void AddCoins(int amount)
     {

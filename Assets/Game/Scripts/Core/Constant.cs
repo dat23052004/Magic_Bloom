@@ -6,11 +6,19 @@
 
     // Save related constants
     public const string ITEM_PREFIX = "Item_";
-    public const int DEFAULT_COUNT = 100;
+    public const int DEFAULT_ITEM_COUNT = 5;
+    public const int DEFAULT_COINS = 100;
 
-
-    // score in level 
+    // score in level
     public const int BASE_STARS = 5;
+
+    // Coin rewards per star rating
+    public const int COIN_REWARD_1_STAR = 10;
+    public const int COIN_REWARD_2_STAR = 25;
+    public const int COIN_REWARD_3_STAR = 50;
+
+    // Save key for highest level completed
+    public const string LEVEL_KEY = "Player_Level";
 
     // Keys shop
     public const string COINS_KEY = "Shop_Coins";

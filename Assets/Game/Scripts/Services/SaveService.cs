@@ -1,4 +1,4 @@
-﻿
+
 using UnityEngine;
 
 public static class SaveService
@@ -8,11 +8,11 @@ public static class SaveService
         string key = Constant.ITEM_PREFIX + itemType.ToString();
         if(!PlayerPrefs.HasKey(key))
         {
-            PlayerPrefs.SetInt(key, Constant.DEFAULT_COUNT);
+            PlayerPrefs.SetInt(key, Constant.DEFAULT_ITEM_COUNT);
             PlayerPrefs.Save();
         }
 
-        return PlayerPrefs.GetInt(key, Constant.DEFAULT_COUNT);
+        return PlayerPrefs.GetInt(key, Constant.DEFAULT_ITEM_COUNT);
     }
 
     public static void SaveItemCount(ItemType itemType, int count)
@@ -26,9 +26,25 @@ public static class SaveService
     {
         foreach (ItemType itemType in System.Enum.GetValues(typeof(ItemType)))
         {
-            PlayerPrefs.SetInt(Constant.ITEM_PREFIX + itemType.ToString(), Constant.DEFAULT_COUNT);
+            PlayerPrefs.SetInt(Constant.ITEM_PREFIX + itemType.ToString(), Constant.DEFAULT_ITEM_COUNT);
         }
         PlayerPrefs.Save();
     }
 
+    /// <summary>
+    /// Reset tất cả: coin về 100, mỗi item về 5.
+    /// </summary>
+    public static void ResetAll()
+    {
+        // Reset coins
+        PlayerPrefs.SetInt(Constant.COINS_KEY, Constant.DEFAULT_COINS);
+
+        // Reset items
+        foreach (ItemType itemType in System.Enum.GetValues(typeof(ItemType)))
+        {
+            PlayerPrefs.SetInt(Constant.ITEM_PREFIX + itemType.ToString(), Constant.DEFAULT_ITEM_COUNT);
+        }
+
+        PlayerPrefs.Save();
+    }
 }

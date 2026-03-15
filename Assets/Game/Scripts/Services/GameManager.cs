@@ -10,6 +10,9 @@ public class GameManager : Singleton<GameManager>
     public int startLevel = 1;
     protected override void OnInit()
     {
+        SaveService.ResetAll();
+        ShopService.Ins?.ReloadCoins();
+        InventoryService.Ins?.ReloadFromSave();
         StartGame();
     }
 

@@ -41,4 +41,13 @@ public class InventoryService : Singleton<InventoryService>
         OnItemChanged?.Invoke(type, items[type]);
     }
     public bool HasItem(ItemType type) => GetCount(type) > 0;
+
+    public void ReloadFromSave()
+    {
+        foreach (ItemType type in Enum.GetValues(typeof(ItemType)))
+        {
+            items[type] = SaveService.LoadItemCount(type);
+            OnItemChanged?.Invoke(type, items[type]);
+        }
+    }
 }

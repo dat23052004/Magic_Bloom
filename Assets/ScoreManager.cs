@@ -21,7 +21,7 @@ public class ScoreManager : Singleton<ScoreManager>
     {
         int combo = ComboTracker.Ins != null ? ComboTracker.Ins.CurrentCombo : 0;
 
-        int reward = combo > 0
+        int reward = combo >1
             ? Constant.BASE_STARS * combo + Constant.BASE_STARS
             : Constant.BASE_STARS;
 
