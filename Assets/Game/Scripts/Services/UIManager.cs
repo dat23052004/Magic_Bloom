@@ -105,9 +105,9 @@ public class UIManager : Singleton<UIManager>
         // Tính coin reward (chưa cộng — chờ player bấm Claim hoặc Watch Ad)
         int coinReward = starRating switch
         {
-            3 => Constant.COIN_REWARD_3_STAR * level,
-            2 => Constant.COIN_REWARD_2_STAR * level,
-            _ => Constant.COIN_REWARD_1_STAR * level
+            3 => Constant.COIN_REWARD_3_STAR ,
+            2 => Constant.COIN_REWARD_2_STAR ,
+            _ => Constant.COIN_REWARD_1_STAR 
         };
 
         // Lưu lại để cộng khi player bấm Claim / Watch Ad

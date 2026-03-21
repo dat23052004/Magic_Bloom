@@ -10,10 +10,18 @@ public class GameManager : Singleton<GameManager>
     public int startLevel = 1;
     protected override void OnInit()
     {
-        SaveService.ResetAll();
-        ShopService.Ins?.ReloadCoins();
-        InventoryService.Ins?.ReloadFromSave();
         StartGame();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            SaveService.ResetAll();
+            ShopService.Ins?.ReloadAll();
+            InventoryService.Ins?.ReloadFromSave();
+            Debug.Log("[GameManager] All save data reset to default.");
+        }
     }
 
     public void StartGame()

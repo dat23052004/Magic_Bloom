@@ -33,10 +33,12 @@ public class PackageSlotUI : MonoBehaviour
 
     public void Refresh()
     {
-        bool purchased = ShopSaveService.IsIAPPurchased(iapId);
+        // Chỉ áp dụng cơ chế mua 1 lần khi có gán purchasedOverlay
+        if (purchasedOverlay == null) return;
 
+        bool purchased = ShopSaveService.IsIAPPurchased(iapId);
+        purchasedOverlay.SetActive(purchased);
         if (buyButton) buyButton.interactable = !purchased;
-        if (purchasedOverlay) purchasedOverlay.SetActive(purchased);
     }
 
     private void OnBuyClicked()

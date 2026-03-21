@@ -1,7 +1,16 @@
 fileFormatVersion: 2
-guid: 1a6cc562f99997c4281f11bf46588fdb
+guid: a571877c3cf18f7438523791db129a48
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -8469574351315521508
+    second: Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_0
+  - first:
+      213: 1406609754372583765
+    second: Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_1
+  - first:
+      213: 8165461072693561940
+    second: Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -94,19 +103,6 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -132,9 +128,88 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 597
+        width: 1280
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c10341f4007067a80800000000000000
+      internalID: -8469574351315521508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1280
+        height: 457
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5513afa7e18458310800000000000000
+      internalID: 1406609754372583765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_2
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 430
+        width: 711
+        height: 147
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45a0e29459b815170800000000000000
+      internalID: 8165461072693561940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -148,7 +223,10 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_0: -8469574351315521508
+      Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_1: 1406609754372583765
+      Gemini_Generated_Image_s2f5sls2f5sls2f5-Photoroom_2: 8165461072693561940
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

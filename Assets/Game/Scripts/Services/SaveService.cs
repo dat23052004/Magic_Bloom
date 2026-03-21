@@ -6,7 +6,7 @@ public static class SaveService
     public static int LoadItemCount(ItemType itemType)
     {
         string key = Constant.ITEM_PREFIX + itemType.ToString();
-        if(!PlayerPrefs.HasKey(key))
+        if (!PlayerPrefs.HasKey(key))
         {
             PlayerPrefs.SetInt(key, Constant.DEFAULT_ITEM_COUNT);
             PlayerPrefs.Save();
@@ -36,10 +36,12 @@ public static class SaveService
     /// </summary>
     public static void ResetAll()
     {
-        // Reset coins
-        PlayerPrefs.SetInt(Constant.COINS_KEY, Constant.DEFAULT_COINS);
+        // Xóa sạch tất cả PlayerPrefs (coins, items, cosmetics, IAP, equipped, noAds...)
+        PlayerPrefs.DeleteAll();
 
-        // Reset items
+        // Set lại default
+        PlayerPrefs.SetInt(Constant.COINS_KEY, Constant.DEFAULT_COINS);
+        PlayerPrefs.SetInt(Constant.LEVEL_KEY, GameManager.Ins.startLevel);
         foreach (ItemType itemType in System.Enum.GetValues(typeof(ItemType)))
         {
             PlayerPrefs.SetInt(Constant.ITEM_PREFIX + itemType.ToString(), Constant.DEFAULT_ITEM_COUNT);

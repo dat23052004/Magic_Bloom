@@ -71,10 +71,10 @@ public static class LevelValidator
         // Update totalColor
         level.totalColor = colorCounts.Count;
 
-        if (isValid)
-        {
-            Debug.Log($"✓ Level {level.level} validated: {level.totalColor} colors, {level.tubes.Count} tubes, {emptyTubeCount} empty");
-        }
+        // if (isValid)
+        // {
+        //     Debug.Log($"✓ Level {level.level} validated: {level.totalColor} colors, {level.tubes.Count} tubes, {emptyTubeCount} empty");
+        // }
     }
 }
 #endif

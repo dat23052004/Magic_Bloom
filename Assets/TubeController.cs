@@ -200,14 +200,11 @@ public class TubeController : Singleton<TubeController>
         seq.Append(go);
         seq.Append(t2).Join(flow);
 
-        // 4) Về lại: quay thẳng trước (đẹp hơn), rồi bay về lift pose
-        float backRotDur = 0.18f;
-        float backMoveDur = 0.25f;
-
-        seq.Append(tube.DORotateQuaternion(liftWorldRot, backRotDur).SetEase(tiltEase));
+        // Sau khi pour xong → unlock ngay, check win, rồi return animation chạy riêng
         seq.AppendCallback(() =>
         {
-            if (tubeSelected != null && Rules.IsCompleted(to.model))
+            // Check tube completed
+            if (Rules.IsCompleted(to.model))
             {
                 ComboTracker.Ins.RegisterSuccessfulPour();
                 ScoreManager.Ins?.OnTubeCompleted();
@@ -234,23 +231,26 @@ public class TubeController : Singleton<TubeController>
                 {
                     if (LevelManager.Ins.IsWin()) UIManager.Ins?.OnGameStateChanged(GameState.Win);
                 });
-
             }
-        });
 
-        seq.Append(tube.DOMove(liftWorldPos, backMoveDur).SetEase(moveEase));
-        // (8) hạ xuống base (LOCAL)
-        seq.Append(tube.DOLocalMove(basePos, liftTime).SetEase(liftEase));
-
-        seq.OnComplete(() =>
-        {
-            if (tubeSelected != null)
-            {
-                tubeSelected.RestoreSortingAfterPour();
-            }
+            // Unlock ngay để player click tube khác
             tubeSelected = null;
             locked = false;
+
+            // Return animation chạy độc lập (không block input)
+            float backRotDur = 0.18f;
+            float backMoveDur = 0.25f;
+
+            var returnSeq = DOTween.Sequence();
+            returnSeq.Append(tube.DORotateQuaternion(liftWorldRot, backRotDur).SetEase(tiltEase));
+            returnSeq.Append(tube.DOMove(liftWorldPos, backMoveDur).SetEase(moveEase));
+            returnSeq.Append(tube.DOLocalMove(basePos, liftTime).SetEase(liftEase));
+            returnSeq.OnComplete(() =>
+            {
+                from.RestoreSortingAfterPour();
+            });
         });
+
         currentTween = seq;
 
     }

@@ -20,8 +20,8 @@ public class ShopPanelUI : UIPanel
     [SerializeField] private GameObject backgroundTabPanel;
 
     [Header("Tab Visual")]
-    [SerializeField] private Color activeTabColor = Color.yellow;
-    [SerializeField] private Color inactiveTabColor = new Color(0.6f, 0.7f, 1f);
+    [SerializeField] private Sprite activeTabSprite;
+    [SerializeField] private Sprite inactiveTabSprite;
 
     private List<Button> tabButtons;
     private List<GameObject> tabPanels;
@@ -58,9 +58,22 @@ public class ShopPanelUI : UIPanel
             ShopService.Ins.OnCoinsChanged -= HandleCoinsChanged;
         base.Hide();
     }
-    private void SwitchTab(ShopTab packages)
+    private void SwitchTab(ShopTab tab)
     {
-        currentTab = packages;
+        currentTab = tab;
+        int activeIndex = (int)tab;
+
+        for (int i = 0; i < tabButtons.Count; i++)
+        {
+            if (tabButtons[i] == null) continue;
+
+            Image img = tabButtons[i].GetComponent<Image>();
+            if (img != null)
+                img.sprite = (i == activeIndex) ? activeTabSprite : inactiveTabSprite;
+
+            if (i < tabPanels.Count && tabPanels[i] != null)
+                tabPanels[i].SetActive(i == activeIndex);
+        }
     }
     private void RefreshCoins()
     {

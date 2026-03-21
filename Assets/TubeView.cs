@@ -5,6 +5,13 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
+[System.Serializable]
+public struct CapSkin
+{
+    public string id;
+    public Sprite sprite;
+}
+
 public class TubeView : MonoBehaviour
 {
     public TubeModel model;
@@ -20,9 +27,13 @@ public class TubeView : MonoBehaviour
     [SerializeField] private Transform cap;
     [SerializeField] private Ease capEase = Ease.OutBack;
     [SerializeField] private float capMoveDuration = 0.5f;
-    [SerializeField] private float capFadeInDelay = 0.2f; 
+    [SerializeField] private float capFadeInDelay = 0.2f;
     [SerializeField] private float capFadeInDuration = 0.1f;
     [SerializeField] private float soundCloseDelay = 0.1f;
+
+    [Header("Cap Skins")]
+    [SerializeField] private CapSkin[] capSkins;
+    private SpriteRenderer capRenderer;
 
     [Range(0f, 0.5f)]
     [SerializeField] private float bottomBoost = 0.30f;
@@ -39,6 +50,43 @@ public class TubeView : MonoBehaviour
         model = m;
         EnsureViewCount();
         BuildSements();
+
+        if (cap != null)
+            capRenderer = cap.GetComponent<SpriteRenderer>();
+
+        ApplyEquippedCap();
+
+        if (ShopService.Ins != null)
+            ShopService.Ins.OnCapChanged += OnCapChanged;
+    }
+
+    private void OnDestroy()
+    {
+        if (ShopService.Ins != null)
+            ShopService.Ins.OnCapChanged -= OnCapChanged;
+    }
+
+    private void OnCapChanged(string capId)
+    {
+        ApplyEquippedCap();
+    }
+
+    private void ApplyEquippedCap()
+    {
+        if (capRenderer == null || capSkins == null) return;
+
+        string equippedId = ShopService.Ins != null ? ShopService.Ins.EquippedCap : "";
+
+        foreach (var skin in capSkins)
+        {
+            if (skin.id == equippedId)
+            {
+                capRenderer.sprite = skin.sprite;
+                return;
+            }
+        }
+
+        // Không tìm thấy → giữ sprite mặc định trên prefab
     }
     public void BuildSements()
     {

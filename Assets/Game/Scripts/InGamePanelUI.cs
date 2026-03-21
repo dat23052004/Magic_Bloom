@@ -90,9 +90,7 @@ public class InGamePanelUI : UIPanel
             return;
         }
 
-        if (!show) return;
-
-        comboText.text = $"Combo x{combo.ToString()}";
+        comboText.text = $"Combo x{combo}";
 
         comboRoot.transform.DOKill();
         comboRoot.transform.localScale = Vector3.one;
