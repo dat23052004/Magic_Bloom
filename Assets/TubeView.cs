@@ -325,6 +325,12 @@ public class TubeView : MonoBehaviour
         cap.DOLocalMove(originalLocalPos, capMoveDuration)
            .SetEase(capEase);
     }
+
+    public float GetCapAnimationDuration()
+    {
+        return Mathf.Max(capMoveDuration, capFadeInDelay + capFadeInDuration);
+    }
+
     public void BoostSortingForPour()
     {
         if (sortingGroup == null) return;

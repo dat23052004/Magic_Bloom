@@ -130,6 +130,14 @@ public class UIManager : Singleton<UIManager>
     {
         inGamePanel.SetLevel(level);
     }
+
+    public bool TryPlayTubeCompleteScoreBurst(Vector3 worldPosition, int reward)
+    {
+        return inGamePanel != null
+            && inGamePanel.isActiveAndEnabled
+            && inGamePanel.PlayTubeCompleteScoreBurst(worldPosition, reward);
+    }
+
     private void HandleComboChanged(int combo)
     {
         if (inGamePanel == null || comboTrack == null) return;

@@ -1,9 +1,10 @@
 ﻿using DG.Tweening;
-using System;
 using UnityEngine;
 
 public class TubeController : Singleton<TubeController>
 {
+    private const float CompletedCapStartDelay = 0.1f;
+
     [SerializeField] private float liftY = 1.3f;
     [SerializeField] private float liftTime = 0.2f;
 
@@ -203,41 +204,14 @@ public class TubeController : Singleton<TubeController>
         // Sau khi pour xong → unlock ngay, check win, rồi return animation chạy riêng
         seq.AppendCallback(() =>
         {
-            // Check tube completed
             if (Rules.IsCompleted(to.model))
             {
-                ComboTracker.Ins.RegisterSuccessfulPour();
-                ScoreManager.Ins?.OnTubeCompleted();
-                var vfx = to.GetComponent<TubeZigZagVFX>();
-                if (vfx != null)
-                {
-                    vfx.Play();
-                    DOVirtual.DelayedCall(vfx.moveTime + 0.1f, () =>
-                    {
-                        to.AnimateCap();
-                    });
-                }
-                else
-                {
-                    to.AnimateCap();
-                }
-
-                if (winCheckTween != null && winCheckTween.IsActive())
-                {
-                    winCheckTween.Kill();
-                }
-
-                winCheckTween = DOVirtual.DelayedCall(winCheckDelay, () =>
-                {
-                    if (LevelManager.Ins.IsWin()) UIManager.Ins?.OnGameStateChanged(GameState.Win);
-                });
+                HandleCompletedTube(to);
             }
 
-            // Unlock ngay để player click tube khác
             tubeSelected = null;
             locked = false;
 
-            // Return animation chạy độc lập (không block input)
             float backRotDur = 0.18f;
             float backMoveDur = 0.25f;
 
@@ -254,6 +228,71 @@ public class TubeController : Singleton<TubeController>
         currentTween = seq;
 
     }
+
+    private void HandleCompletedTube(TubeView completedTube)
+    {
+        ComboTracker.Ins.RegisterSuccessfulPour();
+        float scoreDelay = PlayCompletedTubeVfx(completedTube);
+        ScheduleCompletionScore(completedTube, scoreDelay*0.8f);
+        ScheduleWinCheck();
+    }
+
+    private void ScheduleCompletionScore(TubeView completedTube, float delay)
+    {
+        if (delay <= 0f)
+        {
+            AwardCompletionScore(completedTube);
+            return;
+        }
+
+        DOVirtual.DelayedCall(delay, () => AwardCompletionScore(completedTube));
+    }
+
+    private void AwardCompletionScore(TubeView completedTube)
+    {
+        ScoreManager scoreManager = ScoreManager.Ins;
+        if (scoreManager == null) return;
+
+        int reward = scoreManager.GetTubeCompletionReward();
+        if (reward <= 0) return;
+
+        if (UIManager.Ins != null
+            && UIManager.Ins.TryPlayTubeCompleteScoreBurst(completedTube.receivePoint.position, reward))
+        {
+            return;
+        }
+
+        scoreManager.AddStars(reward);
+    }
+
+    private static float PlayCompletedTubeVfx(TubeView completedTube)
+    {
+        float capDuration = completedTube != null ? completedTube.GetCapAnimationDuration() : 0f;
+        var vfx = completedTube.GetComponent<TubeZigZagVFX>();
+        if (vfx == null)
+        {
+            completedTube.AnimateCap();
+            return capDuration;
+        }
+
+        vfx.Play();
+        DOVirtual.DelayedCall(vfx.moveTime + CompletedCapStartDelay, completedTube.AnimateCap);
+        return vfx.moveTime + CompletedCapStartDelay + capDuration;
+    }
+
+    private void ScheduleWinCheck()
+    {
+        if (winCheckTween != null && winCheckTween.IsActive())
+        {
+            winCheckTween.Kill();
+        }
+
+        winCheckTween = DOVirtual.DelayedCall(winCheckDelay, () =>
+        {
+            if (LevelManager.Ins.IsWin()) UIManager.Ins?.OnGameStateChanged(GameState.Win);
+        });
+    }
+
     private Tween MoveToPourSpot(Transform tube, Transform pour, Transform receive, float upOffset
      , float sideOffset, float angleA, float speed, float approachTiltTime, float minMoveTime)
     {

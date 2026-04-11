@@ -6,6 +6,7 @@ public class ScoreManager : Singleton<ScoreManager>
     private int totalStars;
     public int TotalStars => totalStars;
     public event Action<int> OnScoreChanged;
+
     public void ResetScore()
     {
         totalStars = 0;
@@ -17,16 +18,26 @@ public class ScoreManager : Singleton<ScoreManager>
     /// Không combo: +5⭐. Combo x2: +15⭐. Combo x3: +20⭐...
     /// Công thức: BASE_STARS * combo + BASE_STARS
     /// </summary>
-    public void OnTubeCompleted()
+    public int GetTubeCompletionReward()
     {
         int combo = ComboTracker.Ins != null ? ComboTracker.Ins.CurrentCombo : 0;
 
-        int reward = combo >1
+        return combo > 1
             ? Constant.BASE_STARS * combo + Constant.BASE_STARS
             : Constant.BASE_STARS;
+    }
 
-        totalStars += reward;
+    public void AddStars(int amount)
+    {
+        if (amount <= 0) return;
+
+        totalStars += amount;
         OnScoreChanged?.Invoke(totalStars);
+    }
+
+    public void OnTubeCompleted()
+    {
+        AddStars(GetTubeCompletionReward());
     }
 
     /// <summary>
