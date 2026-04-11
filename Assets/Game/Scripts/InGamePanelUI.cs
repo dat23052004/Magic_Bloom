@@ -42,13 +42,27 @@ public class InGamePanelUI : UIPanel
     private void OnEnable()
     {
         if (ScoreManager.Ins != null) ScoreManager.Ins.OnScoreChanged += UpdateScore;
-        //UpdateScore(ScoreManager.Ins != null ? ScoreManager.Ins.TotalStars : 0);
+        if (InventoryService.Ins != null) InventoryService.Ins.OnItemChanged += HandleInventoryChanged;
+        if (UndoManager.Ins != null) UndoManager.Ins.OnHistoryChanged += HandleUndoHistoryChanged;
+        if (LevelManager.Ins != null)
+        {
+            LevelManager.Ins.OnShuffleSelectModeChanged += HandleShuffleSelectModeChanged;
+            LevelManager.Ins.OnExtraTubeStateChanged += HandleExtraTubeStateChanged;
+        }
+
+        RefreshPowerUpButtons();
     }
 
     private void OnDisable()
     {
-
         if (ScoreManager.Ins != null) ScoreManager.Ins.OnScoreChanged -= UpdateScore;
+        if (InventoryService.Ins != null) InventoryService.Ins.OnItemChanged -= HandleInventoryChanged;
+        if (UndoManager.Ins != null) UndoManager.Ins.OnHistoryChanged -= HandleUndoHistoryChanged;
+        if (LevelManager.Ins != null)
+        {
+            LevelManager.Ins.OnShuffleSelectModeChanged -= HandleShuffleSelectModeChanged;
+            LevelManager.Ins.OnExtraTubeStateChanged -= HandleExtraTubeStateChanged;
+        }
     }
 
     private void HookButtons()
@@ -63,13 +77,43 @@ public class InGamePanelUI : UIPanel
     }
     private void HandlePowerUpClick(ItemType type)
     {
-        if (InventoryService.Ins != null && InventoryService.Ins.HasItem(type))
+        bool hasItem = InventoryService.Ins != null && InventoryService.Ins.HasItem(type);
+
+        switch (type)
         {
-            OnPowerUpUse?.Invoke(type);
-        }
-        else
-        {
-            OnPowerUpEmpty?.Invoke(type);
+            case ItemType.Undo:
+                if (!hasItem)
+                {
+                    OnPowerUpEmpty?.Invoke(type);
+                    return;
+                }
+
+                if (!CanUseUndo()) return;
+                undoButton?.PlayUseAnimation();
+                OnPowerUpUse?.Invoke(type);
+                break;
+
+            case ItemType.AddTube:
+                if (!hasItem)
+                {
+                    OnPowerUpEmpty?.Invoke(type);
+                    return;
+                }
+
+                if (!CanUseAddTube()) return;
+                addTubeButton?.PlayUseAnimation();
+                OnPowerUpUse?.Invoke(type);
+                break;
+
+            case ItemType.ShuffleTube:
+                if (!IsShuffleActive() && !hasItem)
+                {
+                    OnPowerUpEmpty?.Invoke(type);
+                    return;
+                }
+
+                OnPowerUpUse?.Invoke(type);
+                break;
         }
     }
     public void SetLevel(int level)
@@ -135,5 +179,56 @@ public class InGamePanelUI : UIPanel
     private void UpdateScore(int stars)
     {
         if (scoreText) scoreText.text = stars.ToString();
+    }
+
+    private void HandleInventoryChanged(ItemType type, int newCount)
+    {
+        RefreshPowerUpButtons();
+    }
+
+    private void HandleUndoHistoryChanged(bool hasHistory)
+    {
+        RefreshPowerUpButtons();
+    }
+
+    private void HandleShuffleSelectModeChanged(bool isActive)
+    {
+        RefreshPowerUpButtons();
+    }
+
+    private void HandleExtraTubeStateChanged()
+    {
+        RefreshPowerUpButtons();
+    }
+
+    private void RefreshPowerUpButtons()
+    {
+        bool hasUndoItem = InventoryService.Ins != null && InventoryService.Ins.HasItem(ItemType.Undo);
+        bool hasAddTubeItem = InventoryService.Ins != null && InventoryService.Ins.HasItem(ItemType.AddTube);
+        bool hasShuffleItem = InventoryService.Ins != null && InventoryService.Ins.HasItem(ItemType.ShuffleTube);
+        bool shuffleActive = IsShuffleActive();
+
+        if (undoButton) undoButton.SetInteractable(hasUndoItem && CanUseUndo());
+        if (addTubeButton) addTubeButton.SetInteractable(hasAddTubeItem && CanUseAddTube());
+        if (shuffleTubeButton)
+        {
+            shuffleTubeButton.SetInteractable(shuffleActive || hasShuffleItem);
+            shuffleTubeButton.SetSelected(shuffleActive);
+        }
+    }
+
+    private bool CanUseUndo()
+    {
+        return UndoManager.Ins != null && UndoManager.Ins.HasHistory;
+    }
+
+    private bool CanUseAddTube()
+    {
+        return LevelManager.Ins != null && LevelManager.Ins.CanAddExtraTube();
+    }
+
+    private bool IsShuffleActive()
+    {
+        return LevelManager.Ins != null && LevelManager.Ins.IsShuffleSelectMode;
     }
 }

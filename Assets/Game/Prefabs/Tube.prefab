@@ -11028,6 +11028,17 @@ MonoBehaviour:
   capFadeInDelay: 0.2
   capFadeInDuration: 0.5
   soundCloseDelay: 0.4
+  capSkins:
+  - id: cap1
+    sprite: {fileID: 1711557130, guid: 5c761a88118cf0746a01c0577ee0dee6, type: 3}
+  - id: cap2
+    sprite: {fileID: 5888902550501643322, guid: c0b0882d6326e6f4db532347dea7a621, type: 3}
+  - id: cap3
+    sprite: {fileID: -8713856944598278676, guid: 364869a111d0b3547abe5ecda9ece5cd, type: 3}
+  - id: cap4
+    sprite: {fileID: 8885674867294709827, guid: f6c33d27ea664964abcb05f64d0e5eb8, type: 3}
+  - id: cap5
+    sprite: {fileID: 5282246316712834686, guid: 04af5803c05da30459ce84a21651fe02, type: 3}
   bottomBoost: 0.249
   sortingGroup: {fileID: 1112422384311696354}
 --- !u!114 &3078156941143678405

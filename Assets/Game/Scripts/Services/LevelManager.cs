@@ -27,6 +27,7 @@ public class LevelManager : Singleton<LevelManager>
     private bool isShuffleSelectMode = false;
     public bool IsShuffleSelectMode => isShuffleSelectMode;
     public event Action<bool> OnShuffleSelectModeChanged;
+    public event Action OnExtraTubeStateChanged;
 
     private void Start()
     {
@@ -57,6 +58,9 @@ public class LevelManager : Singleton<LevelManager>
         if (data == null) return;
 
         CurrentLevel = levelNumber;
+        extraTubesUsed = 0;
+        NotifyExtraTubeStateChanged();
+        SetShuffleSelectMode(false);
         ClearSpawned();
         CurrentModels.Clear();
         CurrentViews.Clear();
@@ -240,6 +244,7 @@ public class LevelManager : Singleton<LevelManager>
         CurrentModels.Add(model);
         CurrentViews.Add(view);
         extraTubesUsed++;
+        NotifyExtraTubeStateChanged();
 
         ApplyAutoLayout(CurrentViews);
         AudioManager.Ins?.PlaySFX("AddTube");
@@ -251,8 +256,7 @@ public class LevelManager : Singleton<LevelManager>
     // bật tắt chế độ để chọn tube ne
     public void ToggleShuffleSelectMode()
     {
-        isShuffleSelectMode = !isShuffleSelectMode;
-        OnShuffleSelectModeChanged?.Invoke(isShuffleSelectMode);
+        SetShuffleSelectMode(!isShuffleSelectMode);
         Debug.Log($"[PowerUp] Shuffle select mode: {isShuffleSelectMode}");
     }
 
@@ -264,6 +268,11 @@ public class LevelManager : Singleton<LevelManager>
         if (model.isEmpty) return false;
         if (Rules.IsCompleted(model)) return false;
         if (model.segments.Count <= 1) return false;
+        if (InventoryService.Ins == null || !InventoryService.Ins.UseItem(ItemType.ShuffleTube))
+        {
+            SetShuffleSelectMode(false);
+            return false;
+        }
 
         // Fisher-Yates shuffle trên chính list segments
         var segs = model.segments;
@@ -289,12 +298,28 @@ public class LevelManager : Singleton<LevelManager>
 
         CurrentViews[tubeIndex].Refresh();
 
-        isShuffleSelectMode = false;
-        OnShuffleSelectModeChanged?.Invoke(false);
+        SetShuffleSelectMode(false);
 
         UndoManager.Ins?.ClearHistory();
         AudioManager.Ins?.PlaySFX("Shuffle");
         return true;
     }
     #endregion
+
+    private void NotifyExtraTubeStateChanged()
+    {
+        OnExtraTubeStateChanged?.Invoke();
+    }
+
+    private void SetShuffleSelectMode(bool enabled)
+    {
+        if (isShuffleSelectMode == enabled)
+        {
+            OnShuffleSelectModeChanged?.Invoke(isShuffleSelectMode);
+            return;
+        }
+
+        isShuffleSelectMode = enabled;
+        OnShuffleSelectModeChanged?.Invoke(isShuffleSelectMode);
+    }
 }

@@ -164,20 +164,33 @@ public class UIManager : Singleton<UIManager>
     private void HandlePowerUpUse(ItemType itemType)
     {
         if (GameManager.Ins.currentState != GameState.InGame) return; // Chỉ xử lý khi đang trong game
-        bool consumed = InventoryService.Ins.UseItem(itemType);
-        if (!consumed) return;
+        var inventory = InventoryService.Ins;
+        var levelManager = LevelManager.Ins;
+
         switch (itemType)
         {
             case ItemType.Undo:
-                LevelManager.Ins?.PerformUndo();
+                if (UndoManager.Ins == null || !UndoManager.Ins.HasHistory) return;
+                if (inventory == null || !inventory.UseItem(itemType)) return;
+                if (!(levelManager?.PerformUndo() ?? false))
+                {
+                    inventory.AddItem(itemType, 1);
+                }
                 break;
 
             case ItemType.AddTube:
-                LevelManager.Ins?.AddExtraTube();
+                if (levelManager == null || !levelManager.CanAddExtraTube()) return;
+                if (inventory == null || !inventory.UseItem(itemType)) return;
+                if (!levelManager.AddExtraTube())
+                {
+                    inventory.AddItem(itemType, 1);
+                }
                 break;
 
             case ItemType.ShuffleTube:
-                LevelManager.Ins?.ToggleShuffleSelectMode();
+                if (levelManager == null) return;
+                if (!levelManager.IsShuffleSelectMode && (inventory == null || !inventory.HasItem(itemType))) return;
+                levelManager.ToggleShuffleSelectMode();
                 break;
         }
     }
@@ -239,13 +252,11 @@ public class UIManager : Singleton<UIManager>
     private void OpenShop()
     {
         OnGameStateChanged(GameState.Shop);
-        shopPanel.Show();
     }
 
     private void CloseShop()
     {
         OnGameStateChanged(GameState.InGame);
-        shopPanel.Hide();
     }
     #endregion
 }

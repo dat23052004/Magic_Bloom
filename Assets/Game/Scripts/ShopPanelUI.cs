@@ -12,13 +12,10 @@ public class ShopPanelUI : UIPanel
     [Header("Tab Button")]
     [SerializeField] private Button packTabBtn;
     [SerializeField] private Button skinCapsTabBtn;
-    [SerializeField] private Button backgroundTabBtn;
 
     [Header("Tab Panels")]
     [SerializeField] private GameObject packTabPanel;
     [SerializeField] private GameObject skinCapsTabPanel;
-    [SerializeField] private GameObject backgroundTabPanel;
-
     [Header("Tab Visual")]
     [SerializeField] private Sprite activeTabSprite;
     [SerializeField] private Sprite inactiveTabSprite;
@@ -31,24 +28,26 @@ public class ShopPanelUI : UIPanel
 
     private void Awake()
     {
-        tabButtons = new List<Button> { packTabBtn, skinCapsTabBtn, backgroundTabBtn };
-        tabPanels = new List<GameObject> { packTabPanel, skinCapsTabPanel, backgroundTabPanel };
+        InitializeTabs();
 
         if(closeButton) closeButton.onClick.AddListener(() => OnCloseShop?.Invoke());
 
         if(packTabBtn) packTabBtn.onClick.AddListener(() => SwitchTab(ShopTab.Packages));
         if(skinCapsTabBtn) skinCapsTabBtn.onClick.AddListener(() => SwitchTab(ShopTab.TubeCaps));
-        if(backgroundTabBtn) backgroundTabBtn.onClick.AddListener(() => SwitchTab(ShopTab.Backgrounds));
     }
 
     public override void Show()
     {
         base.Show();
         RefreshCoins();
+        InitializeTabs();
         SwitchTab(ShopTab.Packages);
 
         if (ShopService.Ins != null)
+        {
+            ShopService.Ins.OnCoinsChanged -= HandleCoinsChanged;
             ShopService.Ins.OnCoinsChanged += HandleCoinsChanged;
+        }
     }
 
  
@@ -60,6 +59,9 @@ public class ShopPanelUI : UIPanel
     }
     private void SwitchTab(ShopTab tab)
     {
+        InitializeTabs();
+        if (tabButtons == null || tabPanels == null) return;
+
         currentTab = tab;
         int activeIndex = (int)tab;
 
@@ -85,6 +87,21 @@ public class ShopPanelUI : UIPanel
     private void HandleCoinsChanged(int newAmount)
     {
         if (coinText) coinText.text = newAmount.ToString();
+    }
+
+    private void InitializeTabs()
+    {
+        tabButtons ??= new List<Button>();
+        tabPanels ??= new List<GameObject>();
+
+        tabButtons.Clear();
+        tabPanels.Clear();
+
+        tabButtons.Add(packTabBtn);
+        tabButtons.Add(skinCapsTabBtn);
+
+        tabPanels.Add(packTabPanel);
+        tabPanels.Add(skinCapsTabPanel);
     }
 }
 

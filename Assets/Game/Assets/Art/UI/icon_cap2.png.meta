@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 640a2766305b7494abb0b2f9ddf9b3e7
+guid: c0b0882d6326e6f4db532347dea7a621
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8576780254082905225
-    second: Gemini_Generated_Image_komsxukomsxukoms-Photoroom_0
+      213: 5888902550501643322
+    second: icon_cap2 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Gemini_Generated_Image_komsxukomsxukoms-Photoroom_0
+      name: icon_cap2 1_0
       rect:
         serializedVersion: 2
-        x: 166
+        x: 0
         y: 0
-        width: 907
-        height: 958
+        width: 253
+        height: 277
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 77bcdc6fcc729f880800000000000000
-      internalID: -8576780254082905225
+      spriteID: a34da8f3ba599b150800000000000000
+      internalID: 5888902550501643322
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: df7387fd024c8ef44bfaa1ab05d9e3e9
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Gemini_Generated_Image_komsxukomsxukoms-Photoroom_0: -8576780254082905225
+      icon_cap2 1_0: 5888902550501643322
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
