@@ -157,16 +157,36 @@ public class ShopService : Singleton<ShopService>
     /// <summary>
     /// Gọi sau khi IAP purchase thành công (callback từ Unity IAP).
     /// </summary>
-    public void CompleteIAP(string iapId, int coinReward, int undoReward, int addTubeReward, int shuffleReward, bool removeAds)
+    public bool CompleteIAP(string iapId, int coinReward, int undoReward, int addTubeReward, int shuffleReward, bool removeAds, bool isOneTimePurchase)
     {
-        ShopSaveService.SetIAPPurchased(iapId);
+        if (isOneTimePurchase && ShopSaveService.IsIAPPurchased(iapId))
+        {
+            Debug.LogWarning($"[Shop] IAP already granted: {iapId}");
+            return false;
+        }
 
         if (coinReward > 0) AddCoins(coinReward);
-        if (undoReward > 0) InventoryService.Ins?.AddItem(ItemType.Undo, undoReward);
-        if (addTubeReward > 0) InventoryService.Ins?.AddItem(ItemType.AddTube, addTubeReward);
-        if (shuffleReward > 0) InventoryService.Ins?.AddItem(ItemType.ShuffleTube, shuffleReward);
+        GrantItemReward(ItemType.Undo, undoReward);
+        GrantItemReward(ItemType.AddTube, addTubeReward);
+        GrantItemReward(ItemType.ShuffleTube, shuffleReward);
         if (removeAds) ShopSaveService.SetNoAds(true);
+        if (isOneTimePurchase) ShopSaveService.SetIAPPurchased(iapId);
 
         Debug.Log($"[Shop] IAP completed: {iapId}");
+        return true;
+    }
+
+    private void GrantItemReward(ItemType itemType, int amount)
+    {
+        if (amount <= 0) return;
+
+        InventoryService inventory = InventoryService.Ins;
+        if (inventory != null)
+        {
+            inventory.AddItem(itemType, amount);
+            return;
+        }
+
+        SaveService.AddItemCount(itemType, amount);
     }
 }

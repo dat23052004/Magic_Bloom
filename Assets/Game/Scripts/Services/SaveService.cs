@@ -22,6 +22,15 @@ public static class SaveService
         PlayerPrefs.Save();
     }
 
+    public static int AddItemCount(ItemType itemType, int amount)
+    {
+        if (amount <= 0) return LoadItemCount(itemType);
+
+        int newCount = LoadItemCount(itemType) + amount;
+        SaveItemCount(itemType, newCount);
+        return newCount;
+    }
+
     public static void ResetAllItems()
     {
         foreach (ItemType itemType in System.Enum.GetValues(typeof(ItemType)))

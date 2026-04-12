@@ -33,16 +33,27 @@ public class PackageSlotUI : MonoBehaviour
 
     public void Refresh()
     {
-        // Chỉ áp dụng cơ chế mua 1 lần khi có gán purchasedOverlay
-        if (purchasedOverlay == null) return;
+        bool purchased = IsOneTimePurchase() && ShopSaveService.IsIAPPurchased(iapId);
 
-        bool purchased = ShopSaveService.IsIAPPurchased(iapId);
-        purchasedOverlay.SetActive(purchased);
-        if (buyButton) buyButton.interactable = !purchased;
+        if (purchasedOverlay != null)
+        {
+            purchasedOverlay.SetActive(purchased);
+        }
+
+        if (buyButton)
+        {
+            buyButton.interactable = !purchased;
+        }
     }
 
     private void OnBuyClicked()
     {
+        if (IsOneTimePurchase() && ShopSaveService.IsIAPPurchased(iapId))
+        {
+            Refresh();
+            return;
+        }
+
         // TODO: Gọi Unity IAP flow thật
         // Khi IAP thành công, gọi:
         // CompletePurchase();
@@ -60,8 +71,30 @@ public class PackageSlotUI : MonoBehaviour
     /// </summary>
     public void CompletePurchase()
     {
-        ShopService.Ins?.CompleteIAP(iapId, coinReward, undoReward, addTubeReward, shuffleReward, removeAds);
+        ShopService shop = ShopService.Ins;
+        if (shop == null) return;
+
+        bool granted = shop.CompleteIAP(
+            iapId,
+            coinReward,
+            undoReward,
+            addTubeReward,
+            shuffleReward,
+            removeAds,
+            IsOneTimePurchase());
+
+        if (!granted)
+        {
+            Refresh();
+            return;
+        }
+
         Refresh();
         AudioManager.Ins?.PlaySFX(SfxCue.Purchase);
+    }
+
+    private bool IsOneTimePurchase()
+    {
+        return purchasedOverlay != null;
     }
 }

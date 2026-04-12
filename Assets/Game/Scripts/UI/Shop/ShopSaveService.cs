@@ -3,7 +3,17 @@
 public static class ShopSaveService 
 {
     // ── Coins ──
-    public static int LoadCoins() => PlayerPrefs.GetInt(Constant.COINS_KEY, 0);
+    public static int LoadCoins()
+    {
+        if (!PlayerPrefs.HasKey(Constant.COINS_KEY))
+        {
+            PlayerPrefs.SetInt(Constant.COINS_KEY, Constant.DEFAULT_COINS);
+            PlayerPrefs.Save();
+        }
+
+        return PlayerPrefs.GetInt(Constant.COINS_KEY, Constant.DEFAULT_COINS);
+    }
+
     public static void SaveCoins(int amount)
     {
         PlayerPrefs.SetInt(Constant.COINS_KEY, Mathf.Max(0, amount));

@@ -35,10 +35,10 @@ public class InventoryService : Singleton<InventoryService>
     public void AddItem(ItemType type, int amount = 1)
     {
         if(amount <= 0) return;
-        if(!items.ContainsKey(type)) items[type] = 0;
-        items[type] += amount;
-        SaveService.SaveItemCount(type, items[type]);
-        OnItemChanged?.Invoke(type, items[type]);
+
+        int newCount = SaveService.AddItemCount(type, amount);
+        items[type] = newCount;
+        OnItemChanged?.Invoke(type, newCount);
     }
     public bool HasItem(ItemType type) => GetCount(type) > 0;
 

@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using UnityEngine;
 
 public class UIManager : Singleton<UIManager>
@@ -10,6 +10,7 @@ public class UIManager : Singleton<UIManager>
 
     [Header("Audio")]
     [SerializeField] private float winSfxDelay = 0.15f;
+    [SerializeField] private float winSfxVolume = 0.2f;
 
     private ComboTracker comboTrack;
     private Tween pendingWinSfxTween;
@@ -268,14 +269,14 @@ public class UIManager : Singleton<UIManager>
 
         if (winSfxDelay <= 0f)
         {
-            AudioManager.Ins?.PlaySFX(SfxCue.Win);
+            AudioManager.Ins?.PlaySFX(SfxCue.Win,winSfxVolume);
             return;
         }
 
         pendingWinSfxTween = DOVirtual.DelayedCall(winSfxDelay, () =>
         {
             pendingWinSfxTween = null;
-            AudioManager.Ins?.PlaySFX(SfxCue.Win);
+            AudioManager.Ins?.PlaySFX(SfxCue.Win,winSfxVolume);
         });
     }
 

@@ -237,7 +237,7 @@ public class InGamePanelUI : UIPanel
         int starCount = GetScoreBurstStarCount(reward);
         int[] starPayloads = BuildScoreBurstPayloads(reward, starCount);
 
-        return PlayScoreBurst(startLocalPoint, targetLocalPoint, starPayloads, HandleScoreBurstArrive);
+        return PlayScoreBurst(startLocalPoint, targetLocalPoint, starPayloads, PunchScoreText);
     }
 
     public bool PlayScoreBurstTest(RectTransform startPoint, RectTransform endPoint, int starCount)
@@ -257,9 +257,19 @@ public class InGamePanelUI : UIPanel
     {
         if (payloads == null || payloads.Length == 0) return false;
 
+        bool hasPlayedArriveSfx = false;
         for (int i = 0; i < payloads.Length; i++)
         {
-            SpawnScoreBurstStar(startLocalPoint, targetLocalPoint, payloads[i], i, onArrive);
+            SpawnScoreBurstStar(startLocalPoint, targetLocalPoint, payloads[i], i, () =>
+            {
+                if (!hasPlayedArriveSfx)
+                {
+                    hasPlayedArriveSfx = true;
+                    PlayScoreBurstArriveSfx();
+                }
+
+                onArrive?.Invoke();
+            });
         }
 
         return true;
@@ -488,10 +498,9 @@ public class InGamePanelUI : UIPanel
         });
     }
 
-    private void HandleScoreBurstArrive()
+    private void PlayScoreBurstArriveSfx()
     {
         AudioManager.Ins?.PlaySFX(SfxCue.Star, scoreBurstArriveSfxVolume);
-        PunchScoreText();
     }
 
     private void PunchScoreText()

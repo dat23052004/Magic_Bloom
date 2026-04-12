@@ -149,6 +149,7 @@ public class AudioManager : Singleton<AudioManager>
 
     public void PlaySFX(SfxCue cue, float volumeScale)
     {
+        Debug.Log("cue " + cue);
         PlaySFX(AudioCueCatalog.GetClipName(cue), volumeScale);
     }
 
@@ -219,6 +220,7 @@ public class AudioManager : Singleton<AudioManager>
     #region Helper Methods
     private bool TryPlaySfx(string clipName, float volumeScale)
     {
+
         if (!sfxEnabled || string.IsNullOrEmpty(clipName)) return false;
 
         if (sfxCooldowns.TryGetValue(clipName, out float lastPlayedTime)
@@ -232,7 +234,7 @@ public class AudioManager : Singleton<AudioManager>
             Debug.LogWarning($"SFX clip '{clipName}' not found!");
             return false;
         }
-
+        Debug.Log("name" + clipName);
         sfxSource.PlayOneShot(clip, Mathf.Max(0f, volumeScale) * sfxVolume);
         sfxCooldowns[clipName] = Time.time;
         return true;

@@ -15,13 +15,16 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L))
+#if UNITY_EDITOR
+        // Debug-only reset hotkey. Use Shift+L to avoid accidental save wipes while testing.
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.L))
         {
             SaveService.ResetAll();
             ShopService.Ins?.ReloadAll();
             InventoryService.Ins?.ReloadFromSave();
             Debug.Log("[GameManager] All save data reset to default.");
         }
+#endif
     }
 
     public void StartGame()

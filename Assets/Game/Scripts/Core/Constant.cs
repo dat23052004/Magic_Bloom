@@ -7,7 +7,7 @@
     // Save related constants
     public const string ITEM_PREFIX = "Item_";
     public const int DEFAULT_ITEM_COUNT = 5;
-    public const int DEFAULT_COINS = 100;
+    public const int DEFAULT_COINS = 1000;
 
     // score in level
     public const int BASE_STARS = 5;

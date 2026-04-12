@@ -18,7 +18,7 @@ public class LevelManager : Singleton<LevelManager>
     new Keyframe(2, 0.9f));
 
     [SerializeField] private int maxExtraTubes = 2;
-
+    [SerializeField] private float sfxVolume = .2f;
     public int CurrentLevel { get; private set; } = 1;
     public List<TubeView> CurrentViews { get; private set; } = new();
     public List<TubeModel> CurrentModels { get; private set; } = new();
@@ -128,7 +128,7 @@ public class LevelManager : Singleton<LevelManager>
             int maxRowCount = Mathf.Max(topCount, bottomCount);
             float spacingAtRow = spacingCurve.Evaluate(Mathf.Min(maxRowCount, 7));
             float neededWidth = maxRowCount * originalWidth + (maxRowCount - 1) * spacingAtRow;
-            
+
             // Fit vào 90% màn hình (giữ padding 2 bên)
             float usableWidth = availableWidth * 0.9f;
             if (neededWidth > usableWidth) scale = usableWidth / neededWidth;
@@ -220,7 +220,7 @@ public class LevelManager : Singleton<LevelManager>
         bool success = UndoManager.Ins.Undo(CurrentModels, CurrentViews);
         if (success)
         {
-            AudioManager.Ins?.PlaySFX(SfxCue.Undo);
+            AudioManager.Ins?.PlaySFX(SfxCue.Undo,sfxVolume);
             ComboTracker.Ins?.ResetCombo();
         }
         return success;
@@ -247,7 +247,7 @@ public class LevelManager : Singleton<LevelManager>
         NotifyExtraTubeStateChanged();
 
         ApplyAutoLayout(CurrentViews);
-        AudioManager.Ins?.PlaySFX(SfxCue.AddTube);
+        AudioManager.Ins?.PlaySFX(SfxCue.AddTube, sfxVolume);
         return true;
     }
     #endregion
@@ -301,7 +301,7 @@ public class LevelManager : Singleton<LevelManager>
         SetShuffleSelectMode(false);
 
         UndoManager.Ins?.ClearHistory();
-        AudioManager.Ins?.PlaySFX(SfxCue.Shuffle);
+        AudioManager.Ins?.PlaySFX(SfxCue.Shuffle, sfxVolume);
         return true;
     }
     #endregion
