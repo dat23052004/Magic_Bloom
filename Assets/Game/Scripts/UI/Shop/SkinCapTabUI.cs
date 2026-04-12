@@ -183,7 +183,7 @@ public class SkinCapTabUI : MonoBehaviour
     {
         if (selectedSlot == null || ShopService.Ins == null) return;
         ShopService.Ins.EquipCap(selectedSlot.ItemId);
-        AudioManager.Ins?.PlaySFX("Equip");
+        AudioManager.Ins?.PlaySFX(SfxCue.Equip);
         RefreshAll();
     }
 
@@ -196,7 +196,7 @@ public class SkinCapTabUI : MonoBehaviour
                 selectedSlot.RequiredLevel, selectedSlot.CoinPrice, playerLevel))
         {
             ShopService.Ins.EquipCap(selectedSlot.ItemId);
-            AudioManager.Ins?.PlaySFX("Purchase");
+            AudioManager.Ins?.PlaySFX(SfxCue.Purchase);
             RefreshAll();
         }
     }
@@ -215,7 +215,7 @@ public class SkinCapTabUI : MonoBehaviour
         if (selectedSlot == null || ShopService.Ins == null) return;
         ShopService.Ins.TryUnlock(selectedSlot.ItemId, UnlockType.AdClaim, 0, 0, 0);
         ShopService.Ins.EquipCap(selectedSlot.ItemId);
-        AudioManager.Ins?.PlaySFX("Purchase");
+        AudioManager.Ins?.PlaySFX(SfxCue.Purchase);
         RefreshAll();
     }
 
@@ -227,7 +227,7 @@ public class SkinCapTabUI : MonoBehaviour
         if (ShopService.Ins.TryUnlock(selectedSlot.ItemId, selectedSlot.SlotUnlockType,
                 selectedSlot.RequiredLevel, selectedSlot.CoinPrice, playerLevel))
         {
-            AudioManager.Ins?.PlaySFX("Purchase");
+            AudioManager.Ins?.PlaySFX(SfxCue.Purchase);
             RefreshAll();
         }
     }

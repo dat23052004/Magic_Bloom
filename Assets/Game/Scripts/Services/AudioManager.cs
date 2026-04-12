@@ -18,11 +18,12 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private bool musicEnabled = true;
     [SerializeField] private bool sfxEnabled = true;
 
-    private Dictionary<string, AudioClip> musicDict = new Dictionary<string, AudioClip>();
-    private Dictionary<string, AudioClip> sfxDict = new Dictionary<string, AudioClip>();
+    private readonly Dictionary<string, AudioClip> musicDict = new();
+    private readonly Dictionary<string, AudioClip> sfxDict = new();
 
-    private Dictionary<string, float> sfxCooldowns = new Dictionary<string, float>();
+    private readonly Dictionary<string, float> sfxCooldowns = new();
     [SerializeField] private float defaultCooldowns = 0.1f;
+
     protected override void OnInit()
     {
         InitializeAudioSource();
@@ -73,9 +74,12 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-   
-
     #region Music Methods
+    public void PlayMusic(MusicCue cue, bool loop = true)
+    {
+        PlayMusic(AudioCueCatalog.GetClipName(cue), loop);
+    }
+
     public void PlayMusic(string clipName, bool loop = true)
     {
         if (!musicEnabled) return;
@@ -127,23 +131,14 @@ public class AudioManager : Singleton<AudioManager>
     #endregion
 
     #region SFX Methods
+    public void PlaySFX(SfxCue cue)
+    {
+        PlaySFX(AudioCueCatalog.GetClipName(cue));
+    }
+
     public void PlaySFX(string clipName)
     {
-        if(!sfxEnabled) return;
-        if(sfxCooldowns.TryGetValue(clipName, out float lastPlayedTime))
-        {
-            if (Time.time - lastPlayedTime < defaultCooldowns) return;
-        }
-
-        if(sfxDict.TryGetValue(clipName, out AudioClip clip))
-        {
-            sfxSource.PlayOneShot(clip, sfxVolume);
-            sfxCooldowns[clipName] = Time.time;
-        }
-        else
-        {
-            Debug.LogWarning($"SFX clip '{clipName}' not found!");
-        }
+        TryPlaySfx(clipName, 1f);
     }
 
     public void PlaySFX(AudioClip clip)
@@ -152,14 +147,21 @@ public class AudioManager : Singleton<AudioManager>
         sfxSource.PlayOneShot(clip, sfxVolume);
     }
 
+    public void PlaySFX(SfxCue cue, float volumeScale)
+    {
+        PlaySFX(AudioCueCatalog.GetClipName(cue), volumeScale);
+    }
+
     public void PlaySFX(string clipName, float volume)
     {
-        if (!sfxEnabled) return;
-        if(sfxDict.TryGetValue(clipName, out AudioClip clip))
-        {
-            sfxSource.PlayOneShot(clip, volume*sfxVolume);
-        }
+        TryPlaySfx(clipName, volume);
     }
+
+    public void PlaySFXAtPoint(SfxCue cue, Vector3 position)
+    {
+        PlaySFXAtPoint(AudioCueCatalog.GetClipName(cue), position);
+    }
+
     public void PlaySFXAtPoint(string clipName, Vector3 position)
     {
         if (!sfxEnabled) return;
@@ -167,6 +169,10 @@ public class AudioManager : Singleton<AudioManager>
         if (sfxDict.TryGetValue(clipName, out AudioClip clip))
         {
             AudioSource.PlayClipAtPoint(clip, position, sfxVolume);
+        }
+        else
+        {
+            Debug.LogWarning($"SFX clip '{clipName}' not found!");
         }
     }
     #endregion
@@ -211,6 +217,27 @@ public class AudioManager : Singleton<AudioManager>
     #endregion
 
     #region Helper Methods
+    private bool TryPlaySfx(string clipName, float volumeScale)
+    {
+        if (!sfxEnabled || string.IsNullOrEmpty(clipName)) return false;
+
+        if (sfxCooldowns.TryGetValue(clipName, out float lastPlayedTime)
+            && Time.time - lastPlayedTime < defaultCooldowns)
+        {
+            return false;
+        }
+
+        if (!sfxDict.TryGetValue(clipName, out AudioClip clip))
+        {
+            Debug.LogWarning($"SFX clip '{clipName}' not found!");
+            return false;
+        }
+
+        sfxSource.PlayOneShot(clip, Mathf.Max(0f, volumeScale) * sfxVolume);
+        sfxCooldowns[clipName] = Time.time;
+        return true;
+    }
+
     private IEnumerator FadeAudioSource(AudioSource source, float startVol, float endVol, float duration, bool stopOnComplete)
     {
         float elapsed = 0f;

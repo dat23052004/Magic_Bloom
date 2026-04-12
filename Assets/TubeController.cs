@@ -26,7 +26,7 @@ public class TubeController : Singleton<TubeController>
     [SerializeField] private float pourAngleMin = -60f;       // rót ít
     [SerializeField] private float pourAngleMax = -80f;       // rót nhiều
 
-    [SerializeField] private float winCheckDelay = 3f;
+    [SerializeField] private float winCheckDelay = 1f;
 
     private TubeView tubeSelected;
     private Vector3 selectedBaseLocalPos;
@@ -64,7 +64,7 @@ public class TubeController : Singleton<TubeController>
 
     private void Select(TubeView tube)
     {
-        AudioManager.Ins.PlaySFX("Bottle_Up");
+        AudioManager.Ins.PlaySFX(SfxCue.BottleUp);
         if (LevelManager.Ins.IsShuffleSelectMode)
         {
             LevelManager.Ins.ShuffleTube(GetTubeIndex(tube));
@@ -88,7 +88,7 @@ public class TubeController : Singleton<TubeController>
     private void Deselect()
     {
         if (tubeSelected == null) return;
-        AudioManager.Ins.PlaySFX("Bottle_Down");
+        AudioManager.Ins.PlaySFX(SfxCue.BottleDown);
         tubeSelected.RestoreSortingAfterPour();
         KillTween();
         currentTween = tubeSelected.transform
@@ -103,7 +103,7 @@ public class TubeController : Singleton<TubeController>
 
     private void SwitchSelect(TubeView from, TubeView to)
     {
-        //AudioManager.Ins.PlaySFX("Bottle_Up");
+        // AudioManager.Ins.PlaySFX(SfxCue.BottleUp);
         KillTween();
         locked = true;
 
@@ -118,7 +118,7 @@ public class TubeController : Singleton<TubeController>
             .DOLocalMove(fromBase, liftTime)
             .OnStart(() =>
             {
-                AudioManager.Ins.PlaySFX("Bottle_Down");
+                AudioManager.Ins.PlaySFX(SfxCue.BottleDown);
             })
             .SetEase(liftEase));
 
@@ -127,7 +127,7 @@ public class TubeController : Singleton<TubeController>
             .DOLocalMove(toBase + Vector3.up * liftY, liftTime)
              .OnStart(() =>
              {
-                 AudioManager.Ins.PlaySFX("Bottle_Up");
+                 AudioManager.Ins.PlaySFX(SfxCue.BottleUp);
              })
             .SetEase(liftEase));
 

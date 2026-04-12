@@ -1,17 +1,23 @@
-﻿using UnityEngine;
+using DG.Tweening;
+using UnityEngine;
 
 public class UIManager : Singleton<UIManager>
 {
     public ShopPanelUI shopPanel;
     public SettingPanelUI settingPanel;
     public WinPanelUI winPanel;
-    public LosePanelUI losePanel;
     public InGamePanelUI inGamePanel;
+
+    [Header("Audio")]
+    [SerializeField] private float winSfxDelay = 0.15f;
+
     private ComboTracker comboTrack;
+    private Tween pendingWinSfxTween;
+
     private void Start()
     {
         comboTrack = ComboTracker.Ins;           // lấy 1 lần
-        if (comboTrack != null) comboTrack.OnComboChanged += HandleComboChanged;// top
+        if (comboTrack != null) comboTrack.OnComboChanged += HandleComboChanged; // top
         SubscribePowerUpEvents(); // bottom
 
         // Subscribe setting events
@@ -20,12 +26,15 @@ public class UIManager : Singleton<UIManager>
             inGamePanel.OnClickSetting += OpenSettingOverlay;
             inGamePanel.OnClickShop += OpenShop;
         }
+
         if (settingPanel != null)
         {
             settingPanel.OnClose += CloseSettingOverlay;
             settingPanel.OnReplay += HandleReplay;
         }
+
         if (shopPanel != null) shopPanel.OnCloseShop += CloseShop;
+
         if (winPanel != null)
         {
             winPanel.OnClaim += HandleWinClaim;
@@ -40,6 +49,8 @@ public class UIManager : Singleton<UIManager>
 
     protected override void OnDestroy()
     {
+        KillPendingWinSfx();
+
         if (comboTrack != null) comboTrack.OnComboChanged -= HandleComboChanged;
         UnsubscribePowerUpEvents();
 
@@ -48,27 +59,32 @@ public class UIManager : Singleton<UIManager>
             inGamePanel.OnClickSetting -= OpenSettingOverlay;
             inGamePanel.OnClickShop -= OpenShop;
         }
+
         if (settingPanel != null)
         {
             settingPanel.OnClose -= CloseSettingOverlay;
             settingPanel.OnReplay -= HandleReplay;
         }
+
         if (shopPanel != null) shopPanel.OnCloseShop -= CloseShop;
+
         if (winPanel != null)
         {
             winPanel.OnClaim -= HandleWinClaim;
             winPanel.OnWatchAd -= HandleWinWatchAd;
         }
+
         base.OnDestroy();
     }
 
     public void OnGameStateChanged(GameState state)
     {
         HideAll();
-        if (state == GameState.Shop || state == GameState.Win || state == GameState.Lose)
+        if (state == GameState.Shop || state == GameState.Win)
         {
             ComboTracker.Ins?.ResetCombo();
         }
+
         switch (state)
         {
             case GameState.Shop:
@@ -82,10 +98,6 @@ public class UIManager : Singleton<UIManager>
             case GameState.Win:
                 HandleWin();
                 break;
-
-            case GameState.Lose:
-                losePanel.Show();
-                break;
         }
     }
 
@@ -93,7 +105,6 @@ public class UIManager : Singleton<UIManager>
     {
         int level = LevelManager.Ins != null ? LevelManager.Ins.CurrentLevel : 1;
 
-        // Tính star rating từ ScoreManager
         int totalColorTubes = 0;
         if (LevelManager.Ins != null)
             totalColorTubes = LevelManager.Ins.CurrentModels.FindAll(t => !t.isEmpty).Count;
@@ -102,28 +113,26 @@ public class UIManager : Singleton<UIManager>
             ? ScoreManager.Ins.GetStarRating(totalColorTubes)
             : 1;
 
-        // Tính coin reward (chưa cộng — chờ player bấm Claim hoặc Watch Ad)
         int coinReward = starRating switch
         {
-            3 => Constant.COIN_REWARD_3_STAR ,
-            2 => Constant.COIN_REWARD_2_STAR ,
-            _ => Constant.COIN_REWARD_1_STAR 
+            3 => Constant.COIN_REWARD_3_STAR,
+            2 => Constant.COIN_REWARD_2_STAR,
+            _ => Constant.COIN_REWARD_1_STAR
         };
 
-        // Lưu lại để cộng khi player bấm Claim / Watch Ad
         pendingCoinReward = coinReward;
 
-        // Hiển thị WinPanel với kết quả
+        PlayWinSfxDelayed();
         winPanel.ShowResult(level, starRating, coinReward);
     }
 
     private void HideAll()
     {
+        KillPendingWinSfx();
         shopPanel.Hide();
         inGamePanel.Hide();
         settingPanel.Hide();
         winPanel.Hide();
-        losePanel.Hide();
     }
 
     public void UpdateLevel(int level)
@@ -141,12 +150,13 @@ public class UIManager : Singleton<UIManager>
     private void HandleComboChanged(int combo)
     {
         if (inGamePanel == null || comboTrack == null) return;
+
         float resetTime = comboTrack.comboResetTime;
         inGamePanel.SetCombo(combo, resetTime);
 
         if (combo >= 5)
         {
-            AudioManager.Ins?.PlaySFX("ComboHigh");
+            AudioManager.Ins?.PlaySFX(SfxCue.ComboHigh);
         }
     }
 
@@ -171,7 +181,8 @@ public class UIManager : Singleton<UIManager>
 
     private void HandlePowerUpUse(ItemType itemType)
     {
-        if (GameManager.Ins.currentState != GameState.InGame) return; // Chỉ xử lý khi đang trong game
+        if (GameManager.Ins.currentState != GameState.InGame) return;
+
         var inventory = InventoryService.Ins;
         var levelManager = LevelManager.Ins;
 
@@ -205,11 +216,9 @@ public class UIManager : Singleton<UIManager>
 
     private void HandlePowerUpEmpty(ItemType type)
     {
-        // TODO: Mở shop / rewarded ads
         Debug.Log($"[PowerUp] {type} hết! Mở shop/ads...");
     }
     #endregion
-
 
     #region Setting Overlay
     private void OpenSettingOverlay()
@@ -223,12 +232,12 @@ public class UIManager : Singleton<UIManager>
         settingPanel.Hide();
         inGamePanel.SetSettingButtonVisible(true);
     }
+
     private void HandleReplay()
     {
         CloseSettingOverlay();
         LevelManager.Ins?.LoadLevel(LevelManager.Ins.CurrentLevel);
     }
-
     #endregion
 
     #region Win
@@ -236,14 +245,12 @@ public class UIManager : Singleton<UIManager>
 
     private void HandleWinClaim()
     {
-        // Nhận coin gốc
         ShopService.Ins?.AddCoins(pendingCoinReward);
         GoNextLevel();
     }
 
     private void HandleWinWatchAd(int multiplier)
     {
-        // Nhận coin × multiplier (sau khi xem ads xong)
         int total = pendingCoinReward * multiplier;
         ShopService.Ins?.AddCoins(total);
         GoNextLevel();
@@ -253,6 +260,31 @@ public class UIManager : Singleton<UIManager>
     {
         OnGameStateChanged(GameState.InGame);
         LevelManager.Ins?.LoadNextLevel();
+    }
+
+    private void PlayWinSfxDelayed()
+    {
+        KillPendingWinSfx();
+
+        if (winSfxDelay <= 0f)
+        {
+            AudioManager.Ins?.PlaySFX(SfxCue.Win);
+            return;
+        }
+
+        pendingWinSfxTween = DOVirtual.DelayedCall(winSfxDelay, () =>
+        {
+            pendingWinSfxTween = null;
+            AudioManager.Ins?.PlaySFX(SfxCue.Win);
+        });
+    }
+
+    private void KillPendingWinSfx()
+    {
+        if (pendingWinSfxTween == null || !pendingWinSfxTween.IsActive()) return;
+
+        pendingWinSfxTween.Kill();
+        pendingWinSfxTween = null;
     }
     #endregion
 

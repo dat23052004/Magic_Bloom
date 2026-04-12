@@ -40,7 +40,7 @@ public class TubeZigZagVFX : MonoBehaviour
     public void Play()
     {
         if (!leftRoot || !rightRoot || !tubeBottom || !tubeTop) return;
-        AudioManager.Ins.PlaySFX("Bottle_Full");
+        AudioManager.Ins.PlaySFX(SfxCue.BottlePull);
         Vector3 bottomPos = tubeBottom.position;
         Vector3 topPos = tubeTop.position;
 

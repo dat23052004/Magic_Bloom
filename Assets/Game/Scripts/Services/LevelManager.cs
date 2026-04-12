@@ -220,7 +220,7 @@ public class LevelManager : Singleton<LevelManager>
         bool success = UndoManager.Ins.Undo(CurrentModels, CurrentViews);
         if (success)
         {
-            AudioManager.Ins?.PlaySFX("Undo");
+            AudioManager.Ins?.PlaySFX(SfxCue.Undo);
             ComboTracker.Ins?.ResetCombo();
         }
         return success;
@@ -247,7 +247,7 @@ public class LevelManager : Singleton<LevelManager>
         NotifyExtraTubeStateChanged();
 
         ApplyAutoLayout(CurrentViews);
-        AudioManager.Ins?.PlaySFX("AddTube");
+        AudioManager.Ins?.PlaySFX(SfxCue.AddTube);
         return true;
     }
     #endregion
@@ -301,7 +301,7 @@ public class LevelManager : Singleton<LevelManager>
         SetShuffleSelectMode(false);
 
         UndoManager.Ins?.ClearHistory();
-        AudioManager.Ins?.PlaySFX("Shuffle");
+        AudioManager.Ins?.PlaySFX(SfxCue.Shuffle);
         return true;
     }
     #endregion

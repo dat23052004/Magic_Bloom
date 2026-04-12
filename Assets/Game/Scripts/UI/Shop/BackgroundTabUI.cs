@@ -170,7 +170,7 @@ public class BackgroundTabUI : MonoBehaviour
     {
         if (selectedSlot == null || ShopService.Ins == null) return;
         ShopService.Ins.EquipBg(selectedSlot.ItemId);
-        AudioManager.Ins?.PlaySFX("Equip");
+        AudioManager.Ins?.PlaySFX(SfxCue.Equip);
         RefreshAll();
     }
 
@@ -183,7 +183,7 @@ public class BackgroundTabUI : MonoBehaviour
                 selectedSlot.RequiredLevel, selectedSlot.CoinPrice, playerLevel))
         {
             ShopService.Ins.EquipBg(selectedSlot.ItemId);
-            AudioManager.Ins?.PlaySFX("Purchase");
+            AudioManager.Ins?.PlaySFX(SfxCue.Purchase);
             RefreshAll();
         }
     }
@@ -202,7 +202,7 @@ public class BackgroundTabUI : MonoBehaviour
         if (selectedSlot == null || ShopService.Ins == null) return;
         ShopService.Ins.TryUnlock(selectedSlot.ItemId, UnlockType.AdClaim, 0, 0, 0);
         ShopService.Ins.EquipBg(selectedSlot.ItemId);
-        AudioManager.Ins?.PlaySFX("Purchase");
+        AudioManager.Ins?.PlaySFX(SfxCue.Purchase);
         RefreshAll();
     }
 

@@ -73,7 +73,7 @@ public class WinPanelUI : UIPanel
                 if (i < starRating)
                 {
                     int idx = i;
-                    starSeq.AppendCallback(() => AudioManager.Ins?.PlaySFX("Star"));
+                    starSeq.AppendCallback(() => AudioManager.Ins?.PlaySFX(SfxCue.Star));
                     starSeq.Append(starImages[idx].DOFade(1f, 0.35f));
                     starSeq.Join(rt.DOScale(Vector3.one, 0.35f).SetEase(Ease.OutBack));
                 }

@@ -2554,7 +2554,7 @@ MonoBehaviour:
   angleA_Max: -60
   pourAngleMin: -60
   pourAngleMax: -95
-  winCheckDelay: 3
+  winCheckDelay: 1
 --- !u!1 &181265745
 GameObject:
   m_ObjectHideFlags: 0
@@ -4403,6 +4403,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: fb13d2affba36f849adabbe21b93e812, type: 3}
   - {fileID: 8300000, guid: 42681da9c7be47341a5aad5cdb527897, type: 3}
   - {fileID: 8300000, guid: 0b225e7c64482c945a4f062096481ad1, type: 3}
+  - {fileID: 8300000, guid: 5d4dd3bece804aa4299aa76d529c9394, type: 3}
+  - {fileID: 8300000, guid: 3f9df24e23a9cfc4bbcb24d35f881833, type: 3}
   musicVolume: 1
   sfxVolume: 1
   musicEnabled: 1

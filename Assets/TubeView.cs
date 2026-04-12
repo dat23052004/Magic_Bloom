@@ -320,7 +320,7 @@ public class TubeView : MonoBehaviour
         }
         DOVirtual.DelayedCall(capMoveDuration * soundCloseDelay, () =>
         {
-            AudioManager.Ins.PlaySFX("Bottle_Close");
+            AudioManager.Ins.PlaySFX(SfxCue.BottleClose);
         });
         cap.DOLocalMove(originalLocalPos, capMoveDuration)
            .SetEase(capEase);

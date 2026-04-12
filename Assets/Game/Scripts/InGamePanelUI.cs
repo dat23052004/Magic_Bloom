@@ -34,6 +34,7 @@ public class InGamePanelUI : UIPanel
     [SerializeField] private float scoreBurstDelayStep = 0.04f;
     [SerializeField] private float scoreBurstArcHeight = 110f;
     [SerializeField] private Color scoreBurstColor = Color.white;
+    [SerializeField] private float scoreBurstArriveSfxVolume = 0.35f;
 
     [Header("Power-Up Buttons")]
     [SerializeField] private PowerUpButton undoButton;
@@ -140,11 +141,11 @@ public class InGamePanelUI : UIPanel
                     OnPowerUpEmpty?.Invoke(type);
                     return;
                 }
-
                 OnPowerUpUse?.Invoke(type);
                 break;
         }
     }
+
 
     public void SetLevel(int level)
     {
@@ -236,7 +237,7 @@ public class InGamePanelUI : UIPanel
         int starCount = GetScoreBurstStarCount(reward);
         int[] starPayloads = BuildScoreBurstPayloads(reward, starCount);
 
-        return PlayScoreBurst(startLocalPoint, targetLocalPoint, starPayloads, PunchScoreText);
+        return PlayScoreBurst(startLocalPoint, targetLocalPoint, starPayloads, HandleScoreBurstArrive);
     }
 
     public bool PlayScoreBurstTest(RectTransform startPoint, RectTransform endPoint, int starCount)
@@ -485,6 +486,12 @@ public class InGamePanelUI : UIPanel
             onArrive?.Invoke();
             ReturnScoreBurstStar(star);
         });
+    }
+
+    private void HandleScoreBurstArrive()
+    {
+        AudioManager.Ins?.PlaySFX(SfxCue.Star, scoreBurstArriveSfxVolume);
+        PunchScoreText();
     }
 
     private void PunchScoreText()

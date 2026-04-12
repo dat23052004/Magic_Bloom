@@ -62,6 +62,6 @@ public class PackageSlotUI : MonoBehaviour
     {
         ShopService.Ins?.CompleteIAP(iapId, coinReward, undoReward, addTubeReward, shuffleReward, removeAds);
         Refresh();
-        AudioManager.Ins?.PlaySFX("Purchase");
+        AudioManager.Ins?.PlaySFX(SfxCue.Purchase);
     }
 }
