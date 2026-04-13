@@ -10,7 +10,6 @@ public class LevelManager : Singleton<LevelManager>
     [SerializeField] private TubeView tuberPrefab;
     [SerializeField] private Transform spawnRoot;
 
-    [SerializeField] private int maxTopRow = 6;
     [SerializeField] private float rowOffsetWorld = 9f;
     [SerializeField]
     private AnimationCurve spacingCurve = new AnimationCurve(

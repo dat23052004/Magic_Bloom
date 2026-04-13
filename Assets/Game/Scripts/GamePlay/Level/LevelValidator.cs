@@ -20,7 +20,6 @@ public static class LevelValidator
         {
             if (tube.layers == null) continue;
 
-            bool tubeEmpty = true;
             foreach (var layer in tube.layers)
             {
                 if (layer == ColorId.None)
@@ -29,7 +28,6 @@ public static class LevelValidator
                 }
                 else
                 {
-                    tubeEmpty = false;
                     totalFilled++;
 
                     if (!colorCounts.ContainsKey(layer))
@@ -39,8 +37,6 @@ public static class LevelValidator
             }
         }
 
-        // Validation checks
-        bool isValid = true;
 
         // Check 1: Each color should have exactly 'capacity' units
         foreach (var kvp in colorCounts)
@@ -48,7 +44,6 @@ public static class LevelValidator
             if (kvp.Value != level.capacity)
             {
                 Debug.LogWarning($"Level {level.level}: Color {kvp.Key} has {kvp.Value} units, expected {level.capacity}");
-                isValid = false;
             }
         }
 
@@ -71,10 +66,6 @@ public static class LevelValidator
         // Update totalColor
         level.totalColor = colorCounts.Count;
 
-        // if (isValid)
-        // {
-        //     Debug.Log($"✓ Level {level.level} validated: {level.totalColor} colors, {level.tubes.Count} tubes, {emptyTubeCount} empty");
-        // }
     }
 }
 #endif

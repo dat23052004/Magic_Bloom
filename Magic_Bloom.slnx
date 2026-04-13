@@ -10,7 +10,6 @@
   <Project Path="Unity.2D.Psdimporter.Editor.csproj" />
   <Project Path="Unity.VisualScripting.Core.Editor.csproj" />
   <Project Path="Unity.2D.IK.Runtime.csproj" />
-  <Project Path="Unity.Collections.csproj" />
   <Project Path="Unity.PerformanceTesting.Editor.csproj" />
   <Project Path="Unity.VisualScripting.Core.csproj" />
   <Project Path="Unity.VisualScripting.Flow.Editor.csproj" />
@@ -43,7 +42,6 @@
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
   <Project Path="Unity.2D.Common.Runtime.csproj" />
   <Project Path="Unity.InputSystem.ForUI.csproj" />
-  <Project Path="Unity.Collections.CodeGen.csproj" />
   <Project Path="Unity.Mathematics.Editor.csproj" />
   <Project Path="Unity.CollabProxy.Editor.csproj" />
   <Project Path="Unity.VisualScripting.DocCodeExamples.csproj" />
@@ -51,5 +49,5 @@
   <Project Path="Unity.VisualScripting.Shared.Editor.csproj" />
   <Project Path="Unity.2D.Aseprite.Common.csproj" />
   <Project Path="Unity.PlasticSCM.Editor.Entities.csproj" />
-  <Project Path="Unity.Collections.Editor.csproj" />
+  <Project Path="Unity.2D.Triangulation.Runtime.csproj" />
 </Solution>

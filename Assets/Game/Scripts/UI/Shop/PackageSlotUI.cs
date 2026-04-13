@@ -60,10 +60,7 @@ public class PackageSlotUI : MonoBehaviour
 
         Debug.Log($"[Shop] IAP requested: {iapId}");
 
-#if UNITY_EDITOR
-        // Test trong Editor: mua luôn
-        CompletePurchase();
-#endif
+            CompletePurchase();
     }
 
     /// <summary>
